@@ -78,5 +78,38 @@ class Operations:
         finally:
             connection.close()
 
+    @classmethod
+    def insert_champ(cls, champ_infos:dict[str, dict]):
+
+        connection = DatabaseConnection().connection
+        cursor = connection.cursor()
+
+        champInfos = cls.validator.champ_validator(champ_infos)
+
+        idChamp = champInfos.get("id")
+        nameChamp = champInfos.get('name')
+        startChamp = champInfos.get('start')
+        endChamp = champInfos.get('end')
+        logoChamp = champInfos.get('logo')
+        countryChamp = champInfos.get('country')
+        typeChamp = champInfos.get('type')
+        seasonChamp = champInfos.get('season')
+
+        queryInsert = f"""
+        insert into football_data.champs (id_champ,"name",country,"type",season,start_champ,end_champ,logo)
+        values ({idChamp},'{nameChamp}','{countryChamp}','{typeChamp}',{seasonChamp},'{startChamp}','{endChamp}','{logoChamp}')
+        """
+
+        try:
+            cursor.execute(queryInsert)
+            connection.commit()
+
+        except Exception as error:
+            print(error)
+            connection.rollback()
+
+        finally:
+            connection.close()
+
 
 dbOperations = Operations
