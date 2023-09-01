@@ -7,7 +7,7 @@ from database.validators import Validators
 validator = Validators
 
 
-def makeTeamStadiumRequest() -> list[dict[str:dict]]:
+def make_team_stadium_request() -> list[dict[str:dict]]:
     country: str = "Brazil"
     headers: dict = getHeaders()
     url: str = f"https://v3.football.api-sports.io/teams?country={country}"
@@ -19,7 +19,7 @@ def makeTeamStadiumRequest() -> list[dict[str:dict]]:
     return teams
 
 
-def insertJsonStadium(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
+def insert_json_stadium(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
     for team in teams_request_raw:
 
         stadiumInfo: dict = team.get('venue')
@@ -31,7 +31,7 @@ def insertJsonStadium(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
             stadiumInserted.append(stadiumId)
 
 
-def insertJsonTeam(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
+def insert_json_team(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
     for team in teams_request_raw:
 
         teamInserted: list[int] = []
@@ -43,6 +43,6 @@ def insertJsonTeam(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
 
 
 if __name__ == '__main__':
-    jsonTeams = makeTeamStadiumRequest()
-    insertJsonStadium(jsonTeams)
-    insertJsonTeam(jsonTeams)
+    jsonTeams = make_team_stadium_request()
+    insert_json_stadium(jsonTeams)
+    insert_json_team(jsonTeams)
