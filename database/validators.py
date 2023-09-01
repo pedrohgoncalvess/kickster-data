@@ -2,10 +2,10 @@ from datetime import datetime
 
 
 class Validators:
-    actualYear = int(datetime.now().year)
+    def __init__(self):
+        self.actualYear = int(datetime.now().year)
 
-    @classmethod
-    def stadium_validator(cls, stadium_infos: dict[str:str]) -> dict[str:str]:
+    def stadium_validator(self, stadium_infos: dict[str:str]) -> dict[str:str]:
         idExStadium = stadium_infos.get('id')
         nameStadium = stadium_infos.get("name")
         addressStatium = stadium_infos.get('address')
@@ -33,8 +33,7 @@ class Validators:
 
         return dictToReturn
 
-    @classmethod
-    def team_validator(cls, team_info: dict[str:any]) -> dict[str:str]:
+    def team_validator(self, team_info: dict[str:any]) -> dict[str:str]:
 
         idExTeam = team_info.get('team').get('id')
         idStadium = team_info.get('venue').get('id')
@@ -58,8 +57,7 @@ class Validators:
 
         return dictToReturn
 
-    @classmethod
-    def champ_validator(cls, champ_infos: dict[str:dict[str:str]]) -> dict[str:str]:
+    def champ_validator(self, champ_infos: dict[str:dict[str:str]]) -> dict[str:str]:
 
         idChamp = champ_infos.get('league').get('id')
         nameChamp = champ_infos.get('league').get('name')
@@ -69,12 +67,12 @@ class Validators:
 
         seasonsInformation: list[dict[str:str]] = champ_infos.get('seasons')
         for seasonInfo in seasonsInformation:
-            if seasonInfo.get('year') == cls.actualYear:
+            if seasonInfo.get('year') == self.actualYear:
                 startChamp = seasonInfo.get('start')
                 endChamp = seasonInfo.get('end')
             else:
-                startChamp = f'{cls.actualYear}-01-01'
-                endChamp = f'{cls.actualYear}-01-01'
+                startChamp = f'{self.actualYear}-01-01'
+                endChamp = f'{self.actualYear}-01-01'
 
         dictToReturn = {
             "id": idChamp,
@@ -84,7 +82,34 @@ class Validators:
             "country": countryChamp,
             "start": startChamp,
             "end": endChamp,
-            "season": cls.actualYear
+            "season": self.actualYear
+        }
+
+        return dictToReturn
+
+    def player_validator(self, player_infos) -> dict[str:any]:
+
+        playerRoot = player_infos.get('player')
+        playerID = playerRoot.get('id')
+        playerName = playerRoot.get('name')
+        playerFirstName = playerRoot.get('firstname')
+        playerLastName = playerRoot.get('lastname')
+        playerBirth = playerRoot.get('birth').get('date')
+        playerNationality = playerRoot.get('nationality')
+        playerHeight = playerRoot.get('height').replace(' cm', '') if playerRoot.get('height') is not None else 0
+        playerWeight = playerRoot.get('weight').replace(' kg', '') if playerRoot.get('weight') is not None else 0
+        playerPhoto = playerRoot.get('photo')
+
+        dictToReturn = {
+            "id": playerID,
+            "name": playerName,
+            "first_name": playerFirstName,
+            "last_name": playerLastName,
+            "birth": playerBirth,
+            "nationality": playerNationality,
+            "height": playerHeight,
+            "weight": playerWeight,
+            "photo": playerPhoto
         }
 
         return dictToReturn
