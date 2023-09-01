@@ -1,5 +1,4 @@
 from typing import NoReturn
-
 import requests
 from env_var import getHeaders
 from database.operations import dbOperations
