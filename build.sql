@@ -62,12 +62,13 @@ create table if not exists "football_data".players
 (
     id serial,
     id_player integer not null unique,
+    "name" varchar(50) not null,
     first_name varchar(30) not null,
     last_name varchar(40) not null,
     date_of_birth date not null,
     nationality varchar(30),
-    height numeric not null,
-    weight numeric not null,
+    height int,
+    weight int,
     photo varchar(250),
 
     constraint players_id primary key (id)
