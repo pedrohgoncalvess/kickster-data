@@ -1,19 +1,15 @@
-import requests
-from env_var import getHeaders
 from database.operations import dbOperations
 from database.validators import Validators
-from datetime import datetime
+from sports_at_request.api_request import Request
 
 validator = Validators()
+req = Request()
 
 
-def make_team_player_request(id_league: str | int, page: str | int = 1) -> tuple[list[dict[str, dict]], str | int, int]:
-    headers: dict = getHeaders()
+def make_team_player_request(id_team: str | int, page: str | int = 1) -> tuple[list[dict[str, dict]], str | int, int]:
 
-    url: str = f"https://v3.football.api-sports.io/players?team={id_league}&season={datetime.now().year}&page={page}"
+    response = req.team_player(id_team=id_team, page=page)
 
-    req = requests.get(url, headers=headers)
-    response: dict = req.json()
     players: list[dict[str, dict]] = response.get('response')
     maxPage = response.get('paging').get('total')
 
