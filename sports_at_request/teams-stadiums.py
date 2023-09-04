@@ -1,22 +1,10 @@
 from typing import NoReturn
-import requests
-from env_var import getHeaders
+from sports_at_request.api_request import Request
 from database.operations import dbOperations
 from database.validators import Validators
 
-validator = Validators
-
-
-def make_team_stadium_request() -> list[dict[str:dict]]:
-    country: str = "Brazil"
-    headers: dict = getHeaders()
-    url: str = f"https://v3.football.api-sports.io/teams?country={country}"
-
-    req = requests.get(url, headers=headers)
-    response: dict = req.json()
-    teams: list[dict[str, dict]] = response.get('response')
-
-    return teams
+validator = Validators()
+req = Request()
 
 
 def insert_json_stadium(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
@@ -43,6 +31,6 @@ def insert_json_team(teams_request_raw: list[dict[str:dict]]) -> NoReturn:
 
 
 if __name__ == '__main__':
-    jsonTeams = make_team_stadium_request()
+    jsonTeams = req.team_stadium("Brazil")
     insert_json_stadium(jsonTeams)
     insert_json_team(jsonTeams)
