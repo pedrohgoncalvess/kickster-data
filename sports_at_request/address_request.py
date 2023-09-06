@@ -30,7 +30,8 @@ class Request:
     def team_squad(self, id_team: str | int) -> dict[any:any]:
         url = f"https://v3.football.api-sports.io/players/squads?team={id_team}"
         req = requests.get(url, headers=self.headers)
-        return req.json()
+        response = req.json().get("response")
+        return response
 
     def champ_fixture(self, id_champ: str | int, season: str | int):
         url = f"https://v3.football.api-sports.io/fixtures?league={id_champ}&season={season}"
