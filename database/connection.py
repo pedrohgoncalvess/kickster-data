@@ -30,7 +30,7 @@ class DatabaseConnection:
             connection.commit()
 
         except Exception as error:
-            print(error)
+            print(error, statement)
             connection.rollback()
 
         finally:
@@ -52,10 +52,9 @@ class DatabaseConnection:
             return resultQuery
 
     def __create_database__(self) -> NoReturn:
+        connection = self.connection()
         with open(r'../build.sql') as buildDb:
             script: str = buildDb.read()
-            self.connection.cursor().execute(script)
-            self.connection.commit()
-            self.connection.close()
-
-# DatabaseConnection().__create_database__()
+            connection.cursor().execute(script)
+            connection.commit()
+            connection.close()
