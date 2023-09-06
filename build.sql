@@ -1,6 +1,27 @@
 create schema if not exists "football_data";
 SET timezone = 'America/Sao_Paulo';
 
+CREATE OR REPLACE FUNCTION update_teams_squad_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = current_timestamp;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER teams_squad_updated_at_trigger
+BEFORE UPDATE ON "football_data".teams_squad
+FOR EACH ROW
+EXECUTE FUNCTION update_teams_squad_updated_at();
+
+CREATE OR REPLACE FUNCTION generate_id_team_player(id_team integer, id_player integer)
+RETURNS varchar(20) IMMUTABLE
+AS $$
+BEGIN
+    RETURN id_team || '-' || id_player;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION generate_id_team_league(id_team integer, id_league integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
@@ -79,13 +100,13 @@ create table if not exists "football_data".players
 create table if not exists "football_data".teams_squad
 (
     id serial,
-    id_team integer not null unique,
+    id_team integer not null,
     id_player integer not null unique,
-    "position" varchar(50) not null,
     shirt_number integer not null,
-    captain boolean default false not null,
+    "position" varchar(30) not null,
     injured boolean default false not null,
-    updated_at timestamp not null,
+    updated_at timestamp default current_timestamp not null,
+    id_compost varchar(15) unique GENERATED ALWAYS as (generate_id_team_player(id_team,id_player)) STORED,
 
     constraint teams_squad_pk primary key (id),
     constraint squad_team_fk foreign key (id_team) references "football_data".teams (id),
@@ -176,6 +197,8 @@ create table if not exists "football_data".players_stats
   id serial,
   id_player integer not null,
   id_league integer not null,
+  "position" varchar(30) not null,
+  captain boolean default false not null,
   appearances integer not null,
   lineups integer not null,
   "minutes" integer not null,
