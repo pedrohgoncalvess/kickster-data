@@ -1,6 +1,6 @@
 from database.connection import DatabaseConnection
-from typing import NoReturn, Tuple, Any
-from database.validators import Validators
+from typing import NoReturn
+from managers.validators import Validators
 from database.queries import Queries
 
 
@@ -8,8 +8,9 @@ class Operations:
     def __init__(self):
         self.validator = Validators()
         self.queries = Queries()
-        self.__connection = DatabaseConnection().connection
-        self.__cursor = self.__connection.cursor()
+        self.__operations__ = DatabaseConnection()
+        self.__perform_insert_query__ = self.__operations__.__perform_insert_query__
+        self.__perform_consult_query__ = self.__operations__.__perform_consult_query__
 
     def stadium_management(self, stadium_infos: dict[str:str]) -> NoReturn:
 
@@ -32,7 +33,6 @@ class Operations:
 
         self.__perform_insert_query__(queryInsert)
 
-
     def player_management(self, player_values: dict):
 
         playerInfos = self.validator.player_validator(player_values)
@@ -40,31 +40,11 @@ class Operations:
 
         self.__perform_insert_query__(queryInsert)
 
+    def fixture_management(self, fixtures_values: dict):
+        fixturesInfos = self.validator.fixture_validator(fixtures_values)
+        queryInsert = self.queries.insert_fixture(fixturesInfos)
 
-    def __perform_insert_query__(self,statement:str) -> NoReturn:
-        connection = DatabaseConnection().connection
-        cursor = connection.cursor()
-
-        try:
-            cursor.execute(statement)
-            connection.commit()
-
-        except:
-            connection.rollback()
-
-        finally:
-            connection.close()
-
-    def __perform_consult_query__(self, statement: str) -> Any:
-        global resultQuery
-        try:
-            self.__cursor.execute(statement)
-            resultQuery = self.__cursor.fetchall()
-        except:
-            self.__connection.rollback()
-            resultQuery = None
-        finally:
-            return resultQuery
+        self.__perform_insert_query__(queryInsert)
 
     def get_all_teams_id(self) -> list[int]:
 

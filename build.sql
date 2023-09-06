@@ -1,4 +1,5 @@
 create schema if not exists "football_data";
+SET timezone = 'America/Sao_Paulo';
 
 CREATE OR REPLACE FUNCTION generate_id_team_league(id_team integer, id_league integer)
 RETURNS varchar(20) IMMUTABLE
@@ -110,16 +111,22 @@ create table if not exists "football_data".champs
 create table if not exists "football_data".fixtures
 (
     id serial,
+    id_fixture integer not null unique,
+    id_stadium integer,
     id_league integer not null,
     id_team_home integer not null,
     id_team_away integer not null,
-    winner char(4) not null,
-    referee varchar(40),
+    start_at timestamp not null,
+    result varchar(11) not null,
+    round varchar(30) not null,
+    referee varchar(50),
+    status varchar(20),
 
     constraint fixtures_pk primary key (id),
     constraint fixtures_league_fk foreign key (id_league) references "football_data".champs (id),
     constraint fixtures_team_home_fk foreign key (id_team_home) references "football_data".teams (id),
-    constraint fixtures_team_away_fk foreign key (id_team_away) references "football_data".teams (id)
+    constraint fixtures_team_away_fk foreign key (id_team_away) references "football_data".teams (id),
+    constraint fixtures_stadium_fk foreign key (id_stadium) references "football_data".stadiums (id)
 );
 
 create table if not exists "football_data".fixtures_statistics

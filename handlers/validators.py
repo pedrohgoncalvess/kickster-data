@@ -113,3 +113,44 @@ class Validators:
         }
 
         return dictToReturn
+
+    def fixture_validator(self, fixture_infos: dict[str:any]) -> dict[str:str]:
+
+        fixtureInfos: dict[str:any] = fixture_infos.get("fixture")
+        leagueInfo = fixture_infos.get("league")
+        teamsInfo = fixture_infos.get("teams")
+
+        idFixture: str = fixtureInfos.get("id")
+        refereeFixture: str = fixtureInfos.get("referee")
+        datetimeFixture: int = datetime.utcfromtimestamp(fixtureInfos.get("timestamp"))
+
+        idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
+        homeTeam: str = teamsInfo.get("home").get("id")
+        awayTeam: str = teamsInfo.get("away").get("id")
+        idLeague: int = leagueInfo.get("id")
+        roundLeague: str = leagueInfo.get("round")
+        seasonLeague: int = leagueInfo.get("season")
+
+        winnerTeamRaw: bool | str = teamsInfo.get("home").get("winner")
+
+        if winnerTeamRaw:
+            winnerTeam = "home_winner"
+        elif not winnerTeamRaw:
+            winnerTeam = "away_winner"
+        else:
+            winnerTeam = "draw"
+
+        dictToReturn = {
+            "id_fixture": idFixture,
+            "date": datetimeFixture,
+            "referee": refereeFixture,
+            "stadium": idStadium,
+            "home_team": homeTeam,
+            "away_team": awayTeam,
+            "id_league": idLeague,
+            "round": roundLeague,
+            "season": seasonLeague,
+            "result": winnerTeam,
+        }
+
+        return dictToReturn
