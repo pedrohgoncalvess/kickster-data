@@ -85,4 +85,51 @@ class Queries:
 
         return queryInsert
 
+    def insert_fixture(self, fixture_values: dict[str:any]) -> str:
+        idFixture = fixture_values.get("id_fixture")
+        dateFixture = fixture_values.get("date")
+        refereeFixture = fixture_values.get("referee")
+        idStadiumFixture = fixture_values.get("stadium")
+        idHomeTeamFixture = fixture_values.get("home_team")
+        idAwayTeamFixture = fixture_values.get("away_team")
+        idLeague = fixture_values.get("id_league")
+        roundFixture = fixture_values.get("round")
+        seasonFixture = fixture_values.get("season")
+        resultFixture = fixture_values.get("result")
+        statusFixture = fixture_values.get("status")
+
+        if idStadiumFixture != None:
+            queryInsert = f"""
+            insert into football_data.fixtures (id_fixture,id_stadium,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
+            values 
+            ({idFixture},
+            (select id from football_data.stadiums where id_stadium = {idStadiumFixture}),
+            (select id from football_data.champs where id_champ = {idLeague} and season = {seasonFixture}),
+            (select id from football_data.teams where id_team = {idHomeTeamFixture}),
+            (select id from football_data.teams where id_team = {idAwayTeamFixture}),
+            '{dateFixture}',
+            '{resultFixture}',
+            '{roundFixture}',
+            '{refereeFixture}',
+            '{statusFixture}'
+            )
+            """
+        else:
+            queryInsert = f"""
+            insert into football_data.fixtures (id_fixture,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
+            values 
+            ({idFixture},
+            (select id from football_data.champs where id_champ = {idLeague} and season = {seasonFixture}),
+            (select id from football_data.teams where id_team = {idHomeTeamFixture}),
+            (select id from football_data.teams where id_team = {idAwayTeamFixture}),
+            '{dateFixture}',
+            '{resultFixture}',
+            '{roundFixture}',
+            '{refereeFixture}',
+            '{statusFixture}'
+            )
+            """
+
+        return queryInsert
+
 
