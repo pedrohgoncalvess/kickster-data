@@ -2,8 +2,9 @@ class Queries:
     def __init__(self):
         self.get_all_team_id = "select id_team from football_data.teams"
         self.get_all_champ_id = "select id_champ from football_data.champs"
+        self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1"
 
-    def insert_stadium(self, stadium_values:dict[str:str]) -> str:
+    def insert_stadium(self, stadium_values: dict[str:str]) -> str:
 
         idExStadium = stadium_values.get('id')
         nameStadium = stadium_values.get('name')
@@ -23,8 +24,7 @@ class Queries:
 
         return queryInsert
 
-
-    def insert_team(self, team_values:dict[str:str]) -> str:
+    def insert_team(self, team_values: dict[str:str]) -> str:
 
         idExTeam = team_values.get('id')
         idStadium = team_values.get('id_stadium')
@@ -48,7 +48,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_champ(self, champ_values:dict[str:any]) -> str:
+    def insert_champ(self, champ_values: dict[str:any]) -> str:
 
         idChamp = champ_values.get("id")
         nameChamp = champ_values.get('name')
@@ -66,7 +66,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_player(self, player_values:dict[str:any]) -> str:
+    def insert_player(self, player_values: dict[str:any]) -> str:
 
         idPlayer = player_values.get('id')
         namePlayer = player_values.get('name')
@@ -79,8 +79,8 @@ class Queries:
         photoPlayer = player_values.get('photo')
 
         queryInsert = f"""
-        insert into football_data.players (id_player, "name", first_name, last_name, date_of_birth, nationality, height, weight, photo)
-        values ({idPlayer},'{namePlayer}','{firstNamePlayer}','{lastNamePlayer}','{birthPlayer}','{nationalityPlayer}',{heightPlayer},{weightPlayer}, '{photoPlayer}')
+        insert into football_data.players (id_player, "name", first_name, last_name, date_of_birth, nationality, height, weight,photo)
+        values ({idPlayer},'{namePlayer}','{firstNamePlayer}','{lastNamePlayer}','{birthPlayer}','{nationalityPlayer}',{heightPlayer},{weightPlayer},'{photoPlayer}')
         """
 
         return queryInsert
@@ -132,4 +132,21 @@ class Queries:
 
         return queryInsert
 
+    def insert_team_player_squad(self, player_squad_infos: dict[str:any]):
+        idPlayer = player_squad_infos.get("id_player")
+        idTeam = player_squad_infos.get("id_team")
+        positionPlayer = player_squad_infos.get("position")
+        numberPlayer = player_squad_infos.get("number")
 
+        queryInsert = f"""
+        insert into football_data.teams_squad (id_team, id_player, shirt_number, "position") 
+        values
+         (
+         (select id from football_data.teams where id_team = {idTeam}),
+         (select id from football_data.players where id_player = {idPlayer}),
+         {numberPlayer},
+         '{positionPlayer}'
+         )
+        """
+
+        return queryInsert
