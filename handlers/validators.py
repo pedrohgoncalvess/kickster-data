@@ -8,8 +8,8 @@ class Validators:
     def stadium_validator(self, stadium_infos: dict[str:str]) -> dict[str:str]:
         idExStadium = stadium_infos.get('id')
         nameStadium = stadium_infos.get("name")
-        addressStatium = stadium_infos.get('address')
-        capacityStatium = stadium_infos.get('capacity')
+        addressStadium = stadium_infos.get('address')
+        capacityStadium = stadium_infos.get('capacity')
         surfaceStadium = stadium_infos.get('surface')
         imageStadium = stadium_infos.get('image')
 
@@ -23,8 +23,8 @@ class Validators:
         dictToReturn: dict[str:str] = {
             "id": idExStadium,
             "name": nameStadium,
-            "address": addressStatium,
-            "capacity": capacityStatium,
+            "address": addressStadium,
+            "capacity": capacityStadium,
             "surface": surfaceStadium,
             "image": imageStadium,
             "state": stateStadium,
@@ -87,7 +87,7 @@ class Validators:
 
         return dictToReturn
 
-    def player_validator(self, player_infos) -> dict[str:any]:
+    def player_validator(self, player_infos: dict[str:any]) -> dict[str:any]:
 
         playerRoot = player_infos.get('player')
         playerID = playerRoot.get('id')
@@ -99,6 +99,7 @@ class Validators:
         playerHeight = playerRoot.get('height').replace(' cm', '') if playerRoot.get('height') is not None else 0
         playerWeight = playerRoot.get('weight').replace(' kg', '') if playerRoot.get('weight') is not None else 0
         playerPhoto = playerRoot.get('photo')
+        playerInjured = playerRoot.get("injured")
 
         dictToReturn = {
             "id": playerID,
@@ -109,7 +110,8 @@ class Validators:
             "nationality": playerNationality,
             "height": playerHeight,
             "weight": playerWeight,
-            "photo": playerPhoto
+            "photo": playerPhoto,
+            "injured":playerInjured
         }
 
         return dictToReturn
@@ -122,7 +124,6 @@ class Validators:
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee")
-        print(fixtureInfos.get("periods").get("first"))
         datetimeFixture = datetime.utcfromtimestamp(fixtureInfos.get("periods").get("first")) if fixtureInfos.get("periods").get("first") is not None else datetime.utcfromtimestamp(946684800)
 
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
@@ -158,3 +159,25 @@ class Validators:
         }
 
         return dictToReturn
+
+    def team_squad_validator(self, team_squad_infos: dict[str:any]) -> list[dict[str:str]]:
+
+        idTeam = team_squad_infos.get("team").get("id")
+
+        listPlayersToReturn: list[dict[str:any]] = []
+        playersInfos: list[dict[str:any]] = team_squad_infos.get("players")
+        for playerInfo in playersInfos:
+
+            idPlayer = playerInfo.get("id")
+            positionPlayer = playerInfo.get("position")
+            numberPlayer = playerInfo.get("number")
+
+            dictPlayer = {
+                "id_player": idPlayer,
+                "id_team": idTeam,
+                "position": positionPlayer,
+                "number": numberPlayer if numberPlayer is not None else 0,
+            }
+            listPlayersToReturn.append(dictPlayer)
+
+        return listPlayersToReturn
