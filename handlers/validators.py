@@ -122,7 +122,8 @@ class Validators:
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee")
-        datetimeFixture: int = datetime.utcfromtimestamp(fixtureInfos.get("timestamp"))
+        print(fixtureInfos.get("periods").get("first"))
+        datetimeFixture = datetime.utcfromtimestamp(fixtureInfos.get("periods").get("first")) if fixtureInfos.get("periods").get("first") is not None else datetime.utcfromtimestamp(946684800)
 
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
         homeTeam: str = teamsInfo.get("home").get("id")
@@ -131,11 +132,13 @@ class Validators:
         roundLeague: str = leagueInfo.get("round")
         seasonLeague: int = leagueInfo.get("season")
 
+        statusFixture: str = fixtureInfos.get("status").get("long").lower().replace(" ", "_")
+
         winnerTeamRaw: bool | str = teamsInfo.get("home").get("winner")
 
-        if winnerTeamRaw:
+        if winnerTeamRaw == True:
             winnerTeam = "home_winner"
-        elif not winnerTeamRaw:
+        elif winnerTeamRaw == False:
             winnerTeam = "away_winner"
         else:
             winnerTeam = "draw"
@@ -151,6 +154,7 @@ class Validators:
             "round": roundLeague,
             "season": seasonLeague,
             "result": winnerTeam,
+            "status": statusFixture
         }
 
         return dictToReturn
