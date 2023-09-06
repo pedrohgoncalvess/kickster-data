@@ -1,10 +1,10 @@
 from database.connection import DatabaseConnection
 from typing import NoReturn
-from managers.validators import Validators
+from handlers.validators import Validators
 from database.queries import Queries
 
 
-class Operations:
+class Managers:
     def __init__(self):
         self.validator = Validators()
         self.queries = Queries()
@@ -69,6 +69,3 @@ class Operations:
             idsList.append(queryTuple[0])
 
         return idsList
-
-
-dbOperations = Operations()
