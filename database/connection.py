@@ -1,6 +1,7 @@
 import psycopg2
 from env_var import getVar
 from typing import NoReturn, Any
+from database.queries import Queries
 
 
 class DatabaseConnection:
@@ -10,6 +11,7 @@ class DatabaseConnection:
         self.dbName = getVar('DB_NAME')
         self.user = getVar('DB_USER')
         self.password = getVar('DB_PASSWORD')
+        self.queries = Queries()
 
     def connection(self):
         return psycopg2.connect(
@@ -50,11 +52,3 @@ class DatabaseConnection:
         finally:
             connection.close()
             return resultQuery
-
-    def __create_database__(self) -> NoReturn:
-        connection = self.connection()
-        with open(r'../build.sql') as buildDb:
-            script: str = buildDb.read()
-            connection.cursor().execute(script)
-            connection.commit()
-            connection.close()
