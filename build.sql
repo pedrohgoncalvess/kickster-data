@@ -9,12 +9,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER teams_squad_updated_at_trigger
+CREATE OR REPLACE TRIGGER teams_squad_updated_at_trigger
 BEFORE UPDATE ON "football_data".teams_squad
 FOR EACH ROW
 EXECUTE FUNCTION update_teams_squad_updated_at();
 
-CREATE OR REPLACE FUNCTION generate_id_team_player(id_team integer, id_player integer)
+CREATE OR REPLACE FUNCTION generate_compost_id_fixture_team(id_fixture integer, id_team integer)
+RETURNS varchar(20) IMMUTABLE
+AS $$
+BEGIN
+    RETURN id_fixture || '-' || id_team;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION generate_compost_id_team_player(id_team integer, id_player integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
 BEGIN
@@ -22,7 +30,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION generate_id_team_league(id_team integer, id_league integer)
+CREATE OR REPLACE FUNCTION generate_compost_id_team_league(id_team integer, id_league integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
 BEGIN
@@ -30,7 +38,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION generate_id_team_league_card(id_team integer, id_league integer, card_type text)
+CREATE OR REPLACE FUNCTION generate_compost_id_team_league_card(id_team integer, id_league integer, card_type text)
 RETURNS varchar(20) IMMUTABLE
 AS $$
 BEGIN
@@ -38,7 +46,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-create or replace function generate_id_compost_leagues(id_champ integer, season integer)
+create or replace function generate_compost_id_leagues(id_champ integer, season integer)
 returns varchar(20) immutable
 as $$
 BEGIN
@@ -106,7 +114,7 @@ create table if not exists "football_data".teams_squad
     "position" varchar(30) not null,
     injured boolean default false not null,
     updated_at timestamp default current_timestamp not null,
-    id_compost varchar(15) unique GENERATED ALWAYS as (generate_id_team_player(id_team,id_player)) STORED,
+    id_compost varchar(15) unique GENERATED ALWAYS as (generate_compost_id_team_player(id_team,id_player)) STORED,
 
     constraint teams_squad_pk primary key (id),
     constraint squad_team_fk foreign key (id_team) references "football_data".teams (id),
@@ -124,7 +132,7 @@ create table if not exists "football_data".champs
     start_champ date not null,
     end_champ date not null,
     logo varchar(250),
-    id_compost varchar(20) unique generated always as (generate_id_compost_leagues(id_champ, season)) stored,
+    id_compost varchar(20) unique generated always as (generate_compost_id_leagues(id_champ, season)) stored,
 
     constraint champs_pk primary key (id)
 );
@@ -150,11 +158,12 @@ create table if not exists "football_data".fixtures
     constraint fixtures_stadium_fk foreign key (id_stadium) references "football_data".stadiums (id)
 );
 
-create table if not exists "football_data".fixtures_statistics
+create table if not exists "football_data".fixtures_stats
 (
     id serial,
-    id_fixture integer,
-    team char(4) not null,
+    id_fixture integer not null,
+    id_team integer not null,
+    home bool not null,
     shots_on_goal integer not null,
     shots_off_goal integer not null,
     shots_blocked integer not null,
@@ -169,9 +178,12 @@ create table if not exists "football_data".fixtures_statistics
     goalkeeper_saves integer not null,
     total_passes integer not null,
     accurate_passes integer not null,
+    expected_goals numeric not null,
+    id_compost varchar(15) generated always as (generate_compost_id_fixture_team(id_fixture,id_team)) stored,
 
     constraint fixtures_statistics_pk primary key (id),
-    constraint fixtures_statistics_fixture_fk foreign key (id_fixture) references football_data.fixtures (id)
+    constraint fixtures_statistics_fixture_fk foreign key (id_fixture) references football_data.fixtures (id),
+    constraint fixtures_statistics_team_fk foreign key (id_team) references football_data.teams (id)
 );
 
 create table if not exists "football_data".fixtures_events
@@ -181,9 +193,9 @@ create table if not exists "football_data".fixtures_events
     id_player_principal integer not null,
     id_player_assist integer,
     id_fixture integer not null,
-    time integer not null,
+    "time" integer not null,
     type_event varchar(20) not null,
-    detail varchar(30) not null,
+    "detail" varchar(30) not null,
     "comments" varchar(50) not null,
 
     constraint fixtures_events_pk primary key (id),
@@ -254,7 +266,7 @@ create table if not exists "football_data".teams_fixtures_stats
     max_draws_streak integer not null,
     max_lose_streak integer not null,
     id_compost varchar(20) unique
-        GENERATED ALWAYS AS (generate_id_team_league(id_team, id_league)) STORED,
+        GENERATED ALWAYS AS (generate_compost_id_team_league(id_team, id_league)) STORED,
 
     constraint teams_fixtures_stats_pk primary key (id),
     constraint teams_fixtures_stats_team_fk foreign key (id_team) references "football_data".teams (id),
@@ -277,7 +289,7 @@ create table if not exists "football_data".teams_goals_stats
     in_minute_91_105 integer not null,
     in_minute_106_120 integer not null,
     id_compost varchar(20) unique
-        GENERATED ALWAYS AS (generate_id_team_league(id_team, id_league)) STORED,
+        GENERATED ALWAYS AS (generate_compost_id_team_league(id_team, id_league)) STORED,
 
     constraint teams_goals_stats_pk primary key (id),
     constraint teams_goals_stats_team_fk foreign key (id_team) references "football_data".teams,
@@ -299,7 +311,7 @@ create table if not exists "football_data".teams_cards_stats
     in_minute_91_105 integer not null,
     in_minute_106_120 integer not null,
     id_compost varchar(20) unique
-        GENERATED ALWAYS as (generate_id_team_league_card(id_team,id_league, card_type)) STORED,
+        GENERATED ALWAYS as (generate_compost_id_team_league_card(id_team,id_league, card_type)) STORED,
 
     constraint teams_cards_stats_pk primary key (id),
     constraint teams_cards_stats_team_fk foreign key (id_team) references "football_data".teams (id),
