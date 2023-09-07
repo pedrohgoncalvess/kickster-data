@@ -1,10 +1,12 @@
 from handlers.managers import Managers
 from handlers.validators import Validators
 from sports_at_request.address_request import Request
+from database.data_from_db import DataFromDatabase
 
 validator = Validators()
 req = Request()
 manager = Managers()
+dataFromDb = DataFromDatabase()
 
 
 def make_team_player_request(id_team: str | int, page: str | int = 1) -> tuple[list[dict[str, dict]], str | int, int]:
@@ -27,7 +29,7 @@ def insert_json_players(players_request_raw: list[dict[str:dict[str:any]]]):
 
 
 if __name__ == '__main__':
-    idTeams = manager.get_all_teams_id()
+    idTeams = dataFromDb.get_all_teams_id()
     for team in idTeams:
         request, currentPage, maxPage = make_team_player_request(team)
         insert_json_players(request)

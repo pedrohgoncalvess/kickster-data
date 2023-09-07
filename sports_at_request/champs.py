@@ -16,7 +16,7 @@ def insert_json_champ(champ_request_raw: list[dict]) -> NoReturn:
 
 
 if __name__ == '__main__':
-    campTypes: list[str] = ['league', 'cup']
+    campTypes = ['league', 'cup']
 
     responseList = []
     for campType in campTypes:
