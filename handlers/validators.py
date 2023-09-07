@@ -111,7 +111,7 @@ class Validators:
             "height": playerHeight,
             "weight": playerWeight,
             "photo": playerPhoto,
-            "injured":playerInjured
+            "injured": playerInjured
         }
 
         return dictToReturn
@@ -124,7 +124,8 @@ class Validators:
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee")
-        datetimeFixture = datetime.utcfromtimestamp(fixtureInfos.get("periods").get("first")) if fixtureInfos.get("periods").get("first") is not None else datetime.utcfromtimestamp(946684800)
+        datetimeFixture = datetime.utcfromtimestamp(fixtureInfos.get("periods").get("first")) if fixtureInfos.get(
+            "periods").get("first") is not None else datetime.utcfromtimestamp(946684800)
 
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
         homeTeam: str = teamsInfo.get("home").get("id")
@@ -167,7 +168,6 @@ class Validators:
         listPlayersToReturn: list[dict[str:any]] = []
         playersInfos: list[dict[str:any]] = team_squad_infos.get("players")
         for playerInfo in playersInfos:
-
             idPlayer = playerInfo.get("id")
             positionPlayer = playerInfo.get("position")
             numberPlayer = playerInfo.get("number")
@@ -181,3 +181,23 @@ class Validators:
             listPlayersToReturn.append(dictPlayer)
 
         return listPlayersToReturn
+
+    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any], fixture_id: int):
+
+        idTeam = team_fixture_stats_infos.get("team").get("id")
+        statisticsRoot = team_fixture_stats_infos.get("statistics")
+        dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id}
+
+        for statistic in statisticsRoot:
+            typeStat = statistic.get("type").lower().replace(" ", "_")
+            valueStat = statistic.get("value")
+            if type(valueStat) == str:
+                try:
+                    valueStat = int(valueStat.replace("%", ""))
+                except:
+                    valueStat = float(valueStat)
+            if valueStat is None:
+                valueStat = 0
+            dictToReturn.update({typeStat: valueStat})
+
+        return dictToReturn
