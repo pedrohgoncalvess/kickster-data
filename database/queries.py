@@ -3,6 +3,7 @@ class Queries:
         self.get_all_team_id = "select id_team from football_data.teams"
         self.get_all_champ_id = "select id_champ from football_data.champs"
         self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1"
+        self.get_all_fixtures_id = "select id_fixture from football_data.fixtures"
 
     def insert_stadium(self, stadium_values: dict[str:str]) -> str:
 
@@ -147,6 +148,52 @@ class Queries:
          {numberPlayer},
          '{positionPlayer}'
          )
+        """
+
+        return queryInsert
+
+    def insert_fixture_stats(self, team_fixture_stats_infos: dict[str:any]):
+
+        idFixture = team_fixture_stats_infos.get("id_fixture")
+        idTeam = team_fixture_stats_infos.get("id_team")
+        shotsOnGoal = team_fixture_stats_infos.get("shots_on_goal")
+        shotsOffGoal = team_fixture_stats_infos.get("shots_off_goal")
+        shotsBlocked = team_fixture_stats_infos.get("blocked_shots")
+        shotsInsideBox = team_fixture_stats_infos.get("shots_insidebox")
+        shotsOutsideBox = team_fixture_stats_infos.get("shots_outsidebox")
+        fouls = team_fixture_stats_infos.get("fouls")
+        cornerKicks = team_fixture_stats_infos.get("corner_kicks")
+        offSides = team_fixture_stats_infos.get("offsides")
+        ballPossession = team_fixture_stats_infos.get("ball_possession")
+        yellowCards = team_fixture_stats_infos.get("yellow_cards")
+        redCards = team_fixture_stats_infos.get("red_cards")
+        goalKeeperSaves = team_fixture_stats_infos.get("goalkeeper_saves")
+        totalPasses = team_fixture_stats_infos.get("total_passes")
+        accuratePasses = team_fixture_stats_infos.get("passes_accurate")
+        expectedGoals = team_fixture_stats_infos.get("expected_goals")
+
+        queryInsert = f"""
+        insert into football_data.fixtures_stats (id_fixture, id_team, home, shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
+        values (
+        (select id from football_data.fixtures where id_fixture = {idFixture}),
+        (select id from football_data.teams where id_team = {idTeam}),
+        (select case when id_team_home = (select id from football_data.teams where id_team = {idTeam}) then true else false end from football_data.fixtures where id_fixture = {idFixture}),
+        {shotsOnGoal},
+        {shotsOffGoal},
+        {shotsBlocked},
+        {shotsInsideBox},
+        {shotsOutsideBox},
+        {fouls},
+        {cornerKicks},
+        {offSides},
+        {ballPossession},
+        {yellowCards},
+        {redCards},
+        {goalKeeperSaves},
+        {totalPasses},
+        {accuratePasses},
+        {expectedGoals}
+        )
         """
 
         return queryInsert
