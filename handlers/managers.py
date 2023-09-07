@@ -54,36 +54,9 @@ class Managers:
 
             self.__perform_insert_query__(queryInsert)
 
-    def get_all_teams_id(self) -> list[int]:
+    def fixture_stats_management(self, fixture_stats_values: list[dict[str:any]], fixture_id: int) -> NoReturn:
+        fixtureStatsInfo = self.validator.fixture_stats_validator(fixture_stats_values, fixture_id)
+        queryInsert = self.queries.insert_fixture_stats(fixtureStatsInfo)
+        self.__perform_insert_query__(queryInsert)
 
-        queryTeams = self.queries.get_all_team_id
 
-        resultQuery = self.__perform_consult_query__(queryTeams)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_champs_id(self) -> list[int]:
-
-        queryChamps = self.queries.get_all_champ_id
-
-        resultQuery = self.__perform_consult_query__(queryChamps)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_teams_id_serie_a(self) -> list[int]:
-        queryTeamsSerieA = self.queries.get_all_teams_id_serie_a
-        resultQuery = self.__perform_consult_query__(queryTeamsSerieA)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
