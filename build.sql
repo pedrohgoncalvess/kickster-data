@@ -22,6 +22,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION generate_compost_id_fixture_event(id_fixture integer, id_team integer,"time" integer, type_event text)
+RETURNS varchar(20) IMMUTABLE
+AS $$
+BEGIN
+    RETURN id_fixture || '-' || id_team || '-' || "time" || '-' || type_event;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION generate_compost_id_team_player(id_team integer, id_player integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
@@ -150,6 +158,7 @@ create table if not exists "football_data".fixtures
     round varchar(30) not null,
     referee varchar(50),
     status varchar(20),
+    data_status varchar(10) default 'waiting',
 
     constraint fixtures_pk primary key (id),
     constraint fixtures_league_fk foreign key (id_league) references "football_data".champs (id),
@@ -189,18 +198,20 @@ create table if not exists "football_data".fixtures_stats
 create table if not exists "football_data".fixtures_events
 (
     id serial,
-    team varchar(4) not null,
-    id_player_principal integer not null,
-    id_player_assist integer,
+    id_team integer not null,
     id_fixture integer not null,
+    id_player_principal integer,
+    id_player_assist integer,
     "time" integer not null,
     type_event varchar(20) not null,
     "detail" varchar(30) not null,
     "comments" varchar(50) not null,
+    id_compost varchar(50) not null unique generated always as (generate_compost_id_fixture_event(id_fixture, id_team, "time", type_event)) stored,
 
     constraint fixtures_events_pk primary key (id),
     constraint fixtures_events_player_principal foreign key (id_player_principal) references "football_data".players (id),
     constraint fixtures_events_player_assist foreign key (id_player_assist) references "football_data".players (id),
+    constraint fixtures_events_team foreign key (id_team) references "football_data".teams (id),
     constraint fixtures_events_fk foreign key (id_fixture) references "football_data".fixtures (id)
 );
 
