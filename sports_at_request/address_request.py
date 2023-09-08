@@ -44,3 +44,9 @@ class Request:
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
         return response
+
+    def fixture_events(self, id_fixture: str | int) -> list[dict[str:any]]:
+        url = f"https://v3.football.api-sports.io/fixtures/events?fixture={id_fixture}"
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
