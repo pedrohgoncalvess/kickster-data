@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime as dt
+import datetime
 
 
 class Validators:
     def __init__(self):
-        self.actualYear = int(datetime.now().year)
+        self.actualYear = int(dt.now().year)
 
     def stadium_validator(self, stadium_infos: dict[str:str]) -> dict[str:str]:
         idExStadium = stadium_infos.get('id')
@@ -121,11 +122,12 @@ class Validators:
         fixtureInfos: dict[str:any] = fixture_infos.get("fixture")
         leagueInfo = fixture_infos.get("league")
         teamsInfo = fixture_infos.get("teams")
+        saoPauloTz = datetime.timezone(datetime.timedelta(hours=-3))
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee")
-        datetimeFixture = datetime.utcfromtimestamp(fixtureInfos.get("periods").get("first")) if fixtureInfos.get(
-            "periods").get("first") is not None else datetime.utcfromtimestamp(946684800)
+        datetimeFixture = dt.fromtimestamp(fixtureInfos.get("periods").get("first"), saoPauloTz) if fixtureInfos.get(
+            "periods").get("first") is not None else dt.utcfromtimestamp(946684800)
 
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
         homeTeam: str = teamsInfo.get("home").get("id")
@@ -199,5 +201,31 @@ class Validators:
             if valueStat is None:
                 valueStat = 0
             dictToReturn.update({typeStat: valueStat})
+
+        return dictToReturn
+
+    def fixture_events_validator(self, fixture_event_infos: dict[str:any], fixture_id: int):
+        teamEvent = fixture_event_infos.get("team").get("id")
+        timeElapsed = fixture_event_infos.get("time").get("elapsed")
+        principalPlayer = fixture_event_infos.get("player").get("id")
+        assistPlayer = fixture_event_infos.get("assist").get("id")
+        typeEvent = fixture_event_infos.get("type")
+        detailEvent = fixture_event_infos.get("detail")
+        commentEvent = fixture_event_infos.get("comments")
+
+        if principalPlayer is None:
+            commentEvent = "coaching_staff"
+
+
+        dictToReturn = {
+            "id_fixture": fixture_id,
+            "id_team": teamEvent,
+            "time": timeElapsed,
+            "id_player_principal": principalPlayer,
+            "id_player_assist": assistPlayer,
+            "type": typeEvent.lower().replace(" ", "_") if type(typeEvent) == str else None,
+            "detail": detailEvent.lower().replace(" ", "_") if type(detailEvent) == str else None,
+            "comment": commentEvent.lower().replace(" ", "_") if type(commentEvent) == str else 'null'
+        }
 
         return dictToReturn
