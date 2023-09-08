@@ -1,3 +1,5 @@
+import time
+
 import psycopg2
 from env_var import getVar
 from typing import NoReturn, Any
@@ -36,6 +38,24 @@ class DatabaseConnection:
             connection.rollback()
 
         finally:
+            time.sleep(0.5)
+            cursor.close()
+            connection.close()
+
+    def __perform__update_query__(self, statement: str):
+        connection = self.connection()
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute(statement)
+            connection.commit()
+
+        except:
+            connection.rollback()
+
+        finally:
+            time.sleep(0.5)
+            cursor.close()
             connection.close()
 
     def __perform_consult_query__(self, statement: str) -> Any:
@@ -51,4 +71,5 @@ class DatabaseConnection:
             resultQuery = None
         finally:
             connection.close()
+            cursor.close()
             return resultQuery
