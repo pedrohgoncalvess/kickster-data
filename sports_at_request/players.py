@@ -29,7 +29,7 @@ def insert_json_players(players_request_raw: list[dict[str:dict[str:any]]]):
 
 
 if __name__ == '__main__':
-    idTeams = dataFromDb.get_all_teams_id()
+    idTeams = dataFromDb.get_all_teams_id_serie_a()
     for team in idTeams:
         request, currentPage, maxPage = make_team_player_request(team)
         insert_json_players(request)
