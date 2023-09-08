@@ -1,9 +1,15 @@
+from typing import NoReturn
+
+
 class Queries:
     def __init__(self):
         self.get_all_team_id = "select id_team from football_data.teams"
         self.get_all_champ_id = "select id_champ from football_data.champs"
         self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1"
         self.get_all_fixtures_id = "select id_fixture from football_data.fixtures"
+
+    def update_fixture_data_status(self, id_fixture: int) -> NoReturn:
+        return f"update football_data.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
 
     def insert_stadium(self, stadium_values: dict[str:str]) -> str:
 
@@ -195,5 +201,58 @@ class Queries:
         {expectedGoals}
         )
         """
+
+        return queryInsert
+
+
+    def insert_fixture_event(self, fixture_events_infos: dict[str:any]) -> str:
+        idTeam = fixture_events_infos.get("id_team")
+        idFixture = fixture_events_infos.get("id_fixture")
+        timeElapsed = fixture_events_infos.get("time")
+        idPrincipalPlayer = fixture_events_infos.get("id_player_principal")
+        idPlayerAssist = fixture_events_infos.get("id_player_assist")
+        typeEvent = fixture_events_infos.get("type")
+        detailEvent = fixture_events_infos.get("detail")
+        commentEvent = fixture_events_infos.get("comment")
+
+        if idPlayerAssist is not None:
+            queryInsert = f"""
+            insert into football_data.fixtures_events (id_team, id_fixture, id_player_principal, id_player_assist, "time", type_event, "detail", "comments")
+            values (
+            (select id from football_data.teams where id_team = {idTeam}),
+            (select id from football_data.fixtures where id_fixture = {idFixture}),
+            (select id from football_data.players where id_player = {idPrincipalPlayer}),
+            (select id from football_data.players where id_player = {idPlayerAssist}),
+            {timeElapsed},
+            '{typeEvent}',
+            '{detailEvent}',
+            '{commentEvent}'
+            )
+            """
+        else:
+            queryInsert = f"""
+            insert into football_data.fixtures_events (id_team, id_fixture, id_player_principal, "time", type_event, "detail", "comments")
+            values (
+            (select id from football_data.teams where id_team = {idTeam}),
+            (select id from football_data.fixtures where id_fixture = {idFixture}),
+            (select id from football_data.players where id_player = {idPrincipalPlayer}),
+            {timeElapsed},
+            '{typeEvent}',
+            '{detailEvent}',
+            '{commentEvent}'
+            )
+            """
+            if idPrincipalPlayer is None:
+                queryInsert = f"""
+                insert into football_data.fixtures_events (id_team, id_fixture, "time", type_event, "detail", "comments")
+                values (
+                (select id from football_data.teams where id_team = {idTeam}),
+                (select id from football_data.fixtures where id_fixture = {idFixture}),
+                {timeElapsed},
+                '{typeEvent}',
+                '{detailEvent}',
+                '{commentEvent}'
+                )
+                """
 
         return queryInsert
