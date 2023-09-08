@@ -6,7 +6,7 @@ class DataFromDatabase:
     def __init__(self):
         self.queries = Queries()
         self.__connection__ = DatabaseConnection()
-        self.execute_consult = self.__connection__.__perform_insert_query__
+        self.execute_consult = self.__connection__.__perform_consult_query__
 
     def get_all_teams_id(self) -> list[int]:
 
