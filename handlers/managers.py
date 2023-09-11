@@ -24,9 +24,9 @@ class Managers:
 
         self.execute_insert_query(queryInsert)
 
-    def champ_management(self, champ_infos: dict[str, dict]):
-        champInfos = self.validator.champ_validator(champ_infos)
-        queryInsert = self.queries.insert_champ(champInfos)
+    def league_management(self, champ_infos: dict[str, dict]):
+        leagueInfos = self.validator.league_validator(champ_infos)
+        queryInsert = self.queries.insert_league(leagueInfos)
 
         self.execute_insert_query(queryInsert)
 
@@ -62,3 +62,10 @@ class Managers:
             self.execute_insert_query(queryInsert)
         queryUpdate = self.queries.update_fixture_data_status(fixture_id)
         self.execute_update_query(queryUpdate)
+
+    def player_stats_management(self, player_stats_values: list[dict[str:any]]) -> NoReturn:
+        playerStat = self.validator.player_stats_validator(player_stats_values)
+        for stat in playerStat:
+            queryInsert = self.queries.insert_player_stat(stat)
+            self.execute_insert_query(queryInsert)
+
