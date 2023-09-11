@@ -11,7 +11,7 @@ def insert_json_champ(champ_request_raw: list[dict]) -> NoReturn:
     for camp in champ_request_raw:
         idChamp = camp.get('league').get('id')
         if idChamp not in campsInserted:
-            manager.champ_management(camp)
+            manager.league_management(camp)
             campsInserted.append(idChamp)
 
 
@@ -20,7 +20,8 @@ if __name__ == '__main__':
 
     responseList = []
     for campType in campTypes:
-        responseList.append(req.champs("Brazil", campType))
+        responseList.append(req.leagues("Brazil", campType))
+        #responseList.append(req.leagues_search("CONMEBOL Libertadores"))
 
     for jsonChamp in responseList:
         insert_json_champ(jsonChamp)
