@@ -58,31 +58,31 @@ class Validators:
 
         return dictToReturn
 
-    def champ_validator(self, champ_infos: dict[str:dict[str:str]]) -> dict[str:str]:
+    def league_validator(self, league_infos: dict[str:dict[str:str]]) -> dict[str:str]:
 
-        idChamp = champ_infos.get('league').get('id')
-        nameChamp = champ_infos.get('league').get('name')
-        typeChamp = champ_infos.get('league').get('type')
-        logoChamp = champ_infos.get('league').get('logo')
-        countryChamp = champ_infos.get('country').get('name')
+        idLeague = league_infos.get('league').get('id')
+        nameLeague = league_infos.get('league').get('name')
+        typeLeague = league_infos.get('league').get('type')
+        logoLeague = league_infos.get('league').get('logo')
+        countryLeague = league_infos.get('country').get('name')
 
-        seasonsInformation: list[dict[str:str]] = champ_infos.get('seasons')
+        seasonsInformation: list[dict[str:str]] = league_infos.get('seasons')
         for seasonInfo in seasonsInformation:
             if seasonInfo.get('year') == self.actualYear:
-                startChamp = seasonInfo.get('start')
-                endChamp = seasonInfo.get('end')
+                startLeague = seasonInfo.get('start')
+                endLeague = seasonInfo.get('end')
             else:
-                startChamp = f'{self.actualYear}-01-01'
-                endChamp = f'{self.actualYear}-01-01'
+                startLeague = f'{self.actualYear}-01-01'
+                endLeague = f'{self.actualYear}-01-01'
 
         dictToReturn = {
-            "id": idChamp,
-            "name": nameChamp,
-            "logo": logoChamp,
-            "type": typeChamp,
-            "country": countryChamp,
-            "start": startChamp,
-            "end": endChamp,
+            "id": idLeague,
+            "name": nameLeague,
+            "logo": logoLeague,
+            "type": typeLeague,
+            "country": countryLeague,
+            "start": startLeague,
+            "end": endLeague,
             "season": self.actualYear
         }
 
@@ -216,7 +216,6 @@ class Validators:
         if principalPlayer is None:
             commentEvent = "coaching_staff"
 
-
         dictToReturn = {
             "id_fixture": fixture_id,
             "id_team": teamEvent,
@@ -229,3 +228,102 @@ class Validators:
         }
 
         return dictToReturn
+
+    def player_stats_validator(self, player_stats_infos: dict[str:any]):
+        listOfStats: list[dict[str:any]] = []
+        for teamInResponse in player_stats_infos:
+            idPlayer = teamInResponse.get("player").get("id")
+            statisticsRoot = teamInResponse.get("statistics")
+            for stats in statisticsRoot:
+                idLeague = stats.get("league").get("id")
+                seasonLeague = stats.get("league").get("season")
+                idTeam = stats.get("team").get("id")
+                gamesRoot = stats.get("games")
+                substitutesRoot = stats.get("substitutes")
+                shotsRoot = stats.get("shots")
+                goalsRoot = stats.get("goals")
+                passesRoot = stats.get("passes")
+                tacklesRoot = stats.get("tackles")
+                duelsRoot = stats.get("duels")
+                dribblesRoot = stats.get("dribbles")
+                foulsRoot = stats.get("fouls")
+                cardsRoot = stats.get("cards")
+                penaltyRoot = stats.get("penalty")
+
+                playerPosition = gamesRoot.get("position")
+                gamesAppearances = gamesRoot.get("appearences")
+                lineUps = gamesRoot.get("lineups")
+                minutesPlayed = gamesRoot.get("minutes")
+                ratingPlayer = "{:.2f}".format(float(gamesRoot.get('rating'))) if gamesRoot.get('rating') is not None else None
+                playerCaptain = gamesRoot.get("captain")
+
+                substitutesIn = substitutesRoot.get("in")
+                substitutesOut = substitutesRoot.get("out")
+                substitutesBench = substitutesRoot.get("bench")
+
+                shotsTotal = shotsRoot.get("total")
+                shotsOn = shotsRoot.get("on")
+
+                goalsTotal = goalsRoot.get("total")
+                goalsConceded = goalsRoot.get("conceded")
+                goalsAssists = goalsRoot.get("assists")
+                goalsSaves = goalsRoot.get("saves")
+
+                passesTotal = passesRoot.get("total")
+                passesKey = passesRoot.get("key")
+                passesAccuracy = passesRoot.get("accuracy")
+
+                tacklesTotal = tacklesRoot.get("total")
+                tacklesBlock = tacklesRoot.get("blocks")
+                tacklesInterceptions = tacklesRoot.get("interceptions")
+
+                duelsTotal = duelsRoot.get("total")
+                duelsWon = duelsRoot.get("won")
+
+                dribblesAttempts = dribblesRoot.get("attempts")
+                dribblesSuccess = dribblesRoot.get("success")
+                dribblesPast = dribblesRoot.get("past")
+
+                foulsDrawn = foulsRoot.get("drawm")
+                foulsCommitted = foulsRoot.get("committed")
+
+                cardsYellow = cardsRoot.get("yellow")
+                cardsYellowRed = cardsRoot.get("yellowred")
+                cardsRed = cardsRoot.get("red")
+
+                penaltyWon = penaltyRoot.get("won")
+                penaltyCommitted = penaltyRoot.get("committed")
+                penaltyScored = penaltyRoot.get("scored")
+                penaltyMissed = penaltyRoot.get("missed")
+                penaltySaved = penaltyRoot.get("saved")
+
+                dictToReturn = {
+                    "id_player": idPlayer, "id_team": idTeam, "season": seasonLeague, "id_league": idLeague,
+                    "position": playerPosition, "captain": playerCaptain, "appearances": gamesAppearances,
+                    "line_ups": lineUps, "minutes": minutesPlayed,
+                    "rating": ratingPlayer, "substitutes_in": substitutesIn, "substitutes_out": substitutesOut,
+                    "bench": substitutesBench, "shots_total": shotsTotal,
+                    "shots_on": shotsOn, "goals": goalsTotal, "goals_conceded": goalsConceded, "goals_saved": goalsSaves,
+                    "assists": goalsAssists, "total_passes": passesTotal,
+                    "passes_key": passesKey, "accuracy_passes": passesAccuracy, "tackles_total": tacklesTotal,
+                    "blocks": tacklesBlock, "interceptions": tacklesInterceptions,
+                    "duels_total": duelsTotal, "duels_win": duelsWon, "dribbles_attempted": dribblesAttempts,
+                    "dribbles_success": dribblesSuccess, "dribbles_past": dribblesPast,
+                    "fouls_draw": foulsDrawn, "fouls_committed": foulsCommitted, "cards_yellow": cardsYellow,
+                    "cards_yellowred": cardsYellowRed, "cards_red": cardsRed,
+                    "penalties_won": penaltyWon, "penalties_committed": penaltyCommitted, "penalties_scored": penaltyScored,
+                    "penalties_missed": penaltyMissed, "penalties_saved": penaltySaved
+                }
+
+                for keyOfStats in list(dictToReturn.keys()):
+                    valueStats = dictToReturn.get(keyOfStats)
+                    if type(valueStats) == str:
+                        valueStats = valueStats.lower().replace(" ", "_")
+                        dictToReturn.update({keyOfStats: valueStats})
+                    if valueStats is None:
+                        valueStats = 0
+                        dictToReturn.update({keyOfStats: valueStats})
+
+                listOfStats.append(dictToReturn)
+
+            return listOfStats
