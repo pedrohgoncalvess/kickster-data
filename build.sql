@@ -54,6 +54,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+create or replace function generate_compost_id_team_league_goal_type(id_team integer, id_league integer, "type" text)
+returns varchar(20) immutable
+as $$
+BEGIN
+    return id_team || '-' || id_league || '-' || "type";
+end;
+$$
+language plpgsql;
+
 CREATE OR REPLACE FUNCTION generate_compost_id_team_league_card(id_team integer, id_league integer, card_type text)
 RETURNS varchar(20) IMMUTABLE
 AS $$
@@ -322,8 +331,8 @@ create table if not exists "football_data".teams_goals_stats
     in_minute_76_90 integer not null,
     in_minute_91_105 integer not null,
     in_minute_106_120 integer not null,
-    id_compost varchar(20) unique
-        GENERATED ALWAYS AS (generate_compost_id_team_league(id_team, id_league)) STORED,
+    id_compost varchar(30) unique
+        GENERATED ALWAYS AS (generate_compost_id_team_league_goal_type(id_team, id_league, "type")) STORED,
 
     constraint teams_goals_stats_pk primary key (id),
     constraint teams_goals_stats_team_fk foreign key (id_team) references "football_data".teams,
