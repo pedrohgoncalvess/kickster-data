@@ -1,14 +1,16 @@
 from env_var import getHeaders
 import requests
-from datetime import datetime
+from datetime import datetime as dt
 
 
 class Request:
+    actualSeason = int(dt.now().year)
     def __init__(self):
         self.headers: dict = getHeaders()
 
-    def team_player(self, id_team: str | int, page: str | int) -> dict[any:any]:
-        url: str = f"https://v3.football.api-sports.io/players?team={id_team}&season={datetime.now().year}&page={page}"
+
+    def team_player(self, id_team: str | int, page: str | int, season:int = actualSeason) -> dict[any:any]:
+        url: str = f"https://v3.football.api-sports.io/players?team={id_team}&season={season}&page={page}"
 
         req = requests.get(url, headers=self.headers)
         return req.json()
@@ -40,7 +42,7 @@ class Request:
         response = req.json().get("response")
         return response
 
-    def champ_fixture(self, id_champ: str | int, season: str | int):
+    def champ_fixture(self, id_champ: str | int, season: str | int = actualSeason):
         url = f"https://v3.football.api-sports.io/fixtures?league={id_champ}&season={season}"
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
@@ -58,8 +60,14 @@ class Request:
         response = req.json().get("response")
         return response
 
-    def player_stats(self, id_player: str | int, season: int = 2023):
+    def player_stats(self, id_player: str | int, season: int = actualSeason):
         url = f"https://v3.football.api-sports.io/players?id={id_player}&season={season}"
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
+
+    def team_league_stats(self, id_team: str | int, id_league: str | int, season: int = actualSeason):
+        url = f"https://v3.football.api-sports.io/teams/statistics?league={id_league}&season={season}&team={id_team}"
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
         return response
