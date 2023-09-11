@@ -7,16 +7,17 @@ class Validators:
         self.actualYear = int(dt.now().year)
 
     def stadium_validator(self, stadium_infos: dict[str:str]) -> dict[str:str]:
-        idExStadium = stadium_infos.get('id')
-        nameStadium = stadium_infos.get("name")
-        addressStadium = stadium_infos.get('address')
-        capacityStadium = stadium_infos.get('capacity')
-        surfaceStadium = stadium_infos.get('surface')
-        imageStadium = stadium_infos.get('image')
+        stadiumRoot = stadium_infos.get("venue")
+        idExStadium = stadiumRoot.get('id')
+        nameStadium = stadiumRoot.get("name")
+        addressStadium = stadiumRoot.get('address')
+        capacityStadium = stadiumRoot.get('capacity')
+        surfaceStadium = stadiumRoot.get('surface')
+        imageStadium = stadiumRoot.get('image')
 
         try:
-            stateStadium = stadium_infos.get('city').split(',')[1]
-            cityStatium = stadium_infos.get('city').split(',')[0]
+            stateStadium = stadiumRoot.get('city').split(',')[1]
+            cityStatium = stadiumRoot.get('city').split(',')[0]
         except:
             stateStadium = None
             cityStatium = None
@@ -171,11 +172,18 @@ class Validators:
 
         return listPlayersToReturn
 
-    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any], fixture_id: int):
+    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any], fixture_lineups_infos: list[dict[str:any]],fixture_id: int):
 
         idTeam = team_fixture_stats_infos.get("team").get("id")
+
+        global formationLineup
+        for lineup in fixture_lineups_infos:
+            idTeamLineUp = lineup.get("team").get("id")
+            if idTeam == idTeamLineUp:
+                formationLineup = lineup.get("formation")
+
         statisticsRoot = team_fixture_stats_infos.get("statistics")
-        dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id}
+        dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id, "formation":formationLineup}
 
         for statistic in statisticsRoot:
             typeStat = statistic.get("type").lower().replace(" ", "_")
@@ -390,7 +398,8 @@ class Validators:
             minute91_105 = minuteRoot.get("91-105").get("total")
             minute106_120 = minuteRoot.get("106-120").get("total")
 
-            dictToReturn = {"type":typeStat, "id_league": idLeague, "id_team": idTeam, "goals_home": goalsTotalHome, "goals_away": goalsTotalAway,
+            dictToReturn = {"type": typeStat, "id_league": idLeague, "id_team": idTeam, "goals_home": goalsTotalHome,
+                            "goals_away": goalsTotalAway,
                             "in_minute_0_15": minute0_15, "in_minute_16_30": minute16_30,
                             "in_minute_31_45": minute31_45, "in_minute_46_60": minute46_60,
                             "in_minute_61_75": minute61_75,
@@ -401,7 +410,42 @@ class Validators:
             for keyValue in list(dictToReturn.keys()):
                 valueStat = dictToReturn.get(keyValue)
                 if valueStat is None:
-                    dictToReturn.update({keyValue:0})
+                    dictToReturn.update({keyValue: 0})
+
+            listToReturn.append(dictToReturn)
+
+        return listToReturn
+
+    def team_league_cards_stats_validator(self, team_league_cards_stats_infos: dict[str:any]) -> dict[str:str]:
+        cardTypes = ["red", "yellow"]
+
+        idLeague = team_league_cards_stats_infos.get("league").get("id")
+        idTeam = team_league_cards_stats_infos.get("team").get("id")
+        cardsRoot = team_league_cards_stats_infos.get("cards")
+        listToReturn: list[dict[str:any]] = []
+
+        for cardType in cardTypes:
+            cardTypeRoot = cardsRoot.get(cardType)
+            minute0_15 = cardTypeRoot.get("0-15").get("total")
+            minute16_30 = cardTypeRoot.get("16-30").get("total")
+            minute31_45 = cardTypeRoot.get("31-45").get("total")
+            minute46_60 = cardTypeRoot.get("46-60").get("total")
+            minute61_75 = cardTypeRoot.get("61-75").get("total")
+            minute76_90 = cardTypeRoot.get("76-90").get("total")
+            minute91_105 = cardTypeRoot.get("91-105").get("total")
+            minute106_120 = cardTypeRoot.get("106-120").get("total")
+
+            dictToReturn = {
+                "id_league": idLeague, "id_team": idTeam, "card_type": cardType, "in_minute_0_15": minute0_15,
+                "in_minute_16_30": minute16_30, "in_minute_31_45": minute31_45, "in_minute_46_60": minute46_60,
+                "in_minute_61_75": minute61_75, "in_minute_76_90": minute76_90, "in_minute_91_105": minute91_105,
+                "in_minute_106_120": minute106_120
+            }
+
+            for keyValue in list(dictToReturn.keys()):
+                valueStat = dictToReturn.get(keyValue)
+                if valueStat is None:
+                    dictToReturn.update({keyValue: 0})
 
             listToReturn.append(dictToReturn)
 
