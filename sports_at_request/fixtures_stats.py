@@ -9,14 +9,10 @@ manager = Managers()
 dataFromDb = DataFromDatabase()
 
 
-def insert_json_fixture_stats(fixture_stats_raw: list[dict[str:any]], fixture_id: int):
-    for team_stats in fixture_stats_raw:
-        manager.fixture_stats_management(team_stats, fixture_id)
-
-
 if __name__ == '__main__':
     listIdFixtures = dataFromDb.get_all_fixtures_id()
 
     for idFixture in listIdFixtures:
-        jsonFixtureStaticRaw = req.fixture_stats(idFixture)
-        insert_json_fixture_stats(jsonFixtureStaticRaw, idFixture)
+        fixtureStaticResponseRaw = req.fixture_stats(idFixture)
+        fixtureLineUpResponseRaw = req.fixture_lineups(idFixture)
+        manager.fixture_stats_management(fixtureStaticResponseRaw, fixtureLineUpResponseRaw, idFixture)
