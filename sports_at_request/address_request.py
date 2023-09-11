@@ -13,7 +13,14 @@ class Request:
         req = requests.get(url, headers=self.headers)
         return req.json()
 
-    def champs(self, country: str, camp_type: str) -> dict[any:any]:
+    def leagues_search(self, league_name: str) -> dict[any:any]:
+        url: str = f"https://v3.football.api-sports.io/leagues?search={league_name}"
+
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
+
+    def leagues(self, country: str, camp_type: str) -> dict[any:any]:
         url: str = f"https://v3.football.api-sports.io/leagues?country={country}&type={camp_type}"
 
         req = requests.get(url, headers=self.headers)
@@ -47,6 +54,12 @@ class Request:
 
     def fixture_events(self, id_fixture: str | int) -> list[dict[str:any]]:
         url = f"https://v3.football.api-sports.io/fixtures/events?fixture={id_fixture}"
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
+
+    def player_stats(self, id_player: str | int, season: int = 2023):
+        url = f"https://v3.football.api-sports.io/players?id={id_player}&season={season}"
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
         return response
