@@ -38,6 +38,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION generate_compost_id_player_stat(id_player integer, id_league integer, id_team integer)
+RETURNS varchar(20) IMMUTABLE
+AS $$
+BEGIN
+    RETURN id_player || '-' || id_league || '-' || id_team;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION generate_compost_id_team_league(id_team integer, id_league integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
@@ -129,18 +137,18 @@ create table if not exists "football_data".teams_squad
     constraint squad_player_fk foreign key (id_player) references "football_data".players (id)
 );
 
-create table if not exists "football_data".champs
+create table if not exists "football_data".leagues
 (
     id serial,
-    id_champ integer not null,
+    id_league integer not null,
     "name" varchar(50) not null,
     country varchar(15) not null,
     "type" varchar(7) not null,
     season integer not null,
-    start_champ date not null,
-    end_champ date not null,
+    start_league date not null,
+    end_league date not null,
     logo varchar(250),
-    id_compost varchar(20) unique generated always as (generate_compost_id_leagues(id_champ, season)) stored,
+    id_compost varchar(20) unique generated always as (generate_compost_id_leagues(id_league, season)) stored,
 
     constraint champs_pk primary key (id)
 );
@@ -161,7 +169,7 @@ create table if not exists "football_data".fixtures
     data_status varchar(10) default 'waiting',
 
     constraint fixtures_pk primary key (id),
-    constraint fixtures_league_fk foreign key (id_league) references "football_data".champs (id),
+    constraint fixtures_league_fk foreign key (id_league) references "football_data".leagues (id),
     constraint fixtures_team_home_fk foreign key (id_team_home) references "football_data".teams (id),
     constraint fixtures_team_away_fk foreign key (id_team_away) references "football_data".teams (id),
     constraint fixtures_stadium_fk foreign key (id_stadium) references "football_data".stadiums (id)
@@ -220,6 +228,7 @@ create table if not exists "football_data".players_stats
   id serial,
   id_player integer not null,
   id_league integer not null,
+  id_team integer not null,
   "position" varchar(30) not null,
   captain boolean default false not null,
   appearances integer not null,
@@ -246,17 +255,22 @@ create table if not exists "football_data".players_stats
   attempted_dribbles integer not null,
   success_dribbles integer not null,
   past_dribbles integer not null,
+  drawn_fouls integer not null,
+  committed_fouls integer not null,
   yellow_cards integer not null,
+  yellow_red_cards integer not null,
   red_cards integer not null,
   won_penalties integer not null,
   committed_penalties integer not null,
   scored_penalties integer not null,
   missed_penalty integer not null,
   saved_penalty integer not null,
+  id_compost varchar(20) unique generated always as (generate_compost_id_player_stat(id_player,id_league,id_team)) stored,
 
   constraint players_stats_pk primary key (id),
   constraint players_fk foreign key (id_player) references "football_data".players (id),
-  constraint players_leagues_fk foreign key (id_league) references "football_data".champs (id)
+  constraint players_leagues_fk foreign key (id_league) references "football_data".leagues (id),
+  constraint players_teams_fk foreign key (id_team) references "football_data".teams (id)
 );
 
 
@@ -281,7 +295,7 @@ create table if not exists "football_data".teams_fixtures_stats
 
     constraint teams_fixtures_stats_pk primary key (id),
     constraint teams_fixtures_stats_team_fk foreign key (id_team) references "football_data".teams (id),
-    constraint teams_fixtures_stats_league_fk foreign key (id_league) references "football_data".champs (id)
+    constraint teams_fixtures_stats_league_fk foreign key (id_league) references "football_data".leagues (id)
 );
 
 create table if not exists "football_data".teams_goals_stats
@@ -304,7 +318,7 @@ create table if not exists "football_data".teams_goals_stats
 
     constraint teams_goals_stats_pk primary key (id),
     constraint teams_goals_stats_team_fk foreign key (id_team) references "football_data".teams,
-    constraint teams_goals_stats_league_fk foreign key (id_league) references "football_data".champs
+    constraint teams_goals_stats_league_fk foreign key (id_league) references "football_data".leagues
 );
 
 create table if not exists "football_data".teams_cards_stats
@@ -326,5 +340,5 @@ create table if not exists "football_data".teams_cards_stats
 
     constraint teams_cards_stats_pk primary key (id),
     constraint teams_cards_stats_team_fk foreign key (id_team) references "football_data".teams (id),
-    constraint teams_cards_stats_league_fk foreign key (id_league) references "football_data".champs (id)
+    constraint teams_cards_stats_league_fk foreign key (id_league) references "football_data".leagues (id)
 );
