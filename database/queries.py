@@ -169,6 +169,7 @@ class Queries:
 
         idFixture = team_fixture_stats_infos.get("id_fixture")
         idTeam = team_fixture_stats_infos.get("id_team")
+        formation = team_fixture_stats_infos.get("formation")
         shotsOnGoal = team_fixture_stats_infos.get("shots_on_goal")
         shotsOffGoal = team_fixture_stats_infos.get("shots_off_goal")
         shotsBlocked = team_fixture_stats_infos.get("blocked_shots")
@@ -186,11 +187,12 @@ class Queries:
         expectedGoals = team_fixture_stats_infos.get("expected_goals")
 
         queryInsert = f"""
-        insert into football_data.fixtures_stats (id_fixture, id_team, home, shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
+        insert into football_data.fixtures_stats (id_fixture, id_team, home, formation,shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
         values (
         (select id from football_data.fixtures where id_fixture = {idFixture}),
         (select id from football_data.teams where id_team = {idTeam}),
         (select case when id_team_home = (select id from football_data.teams where id_team = {idTeam}) then true else false end from football_data.fixtures where id_fixture = {idFixture}),
+        '{formation}',
         {shotsOnGoal},
         {shotsOffGoal},
         {shotsBlocked},
@@ -394,4 +396,30 @@ class Queries:
 
         return queryInsert
 
+    def insert_team_league_cards_stats(self, team_league_cards_stats_infos: dict[str:any]) -> str:
+        idTeam = team_league_cards_stats_infos.get("id_team")
+        idLeague = team_league_cards_stats_infos.get("id_league")
+        cardType = team_league_cards_stats_infos.get("card_type")
+        inMinute0_15 = team_league_cards_stats_infos.get("in_minute_0_15")
+        inMinute16_30 = team_league_cards_stats_infos.get("in_minute_16_30")
+        inMinute31_45 = team_league_cards_stats_infos.get("in_minute_31_45")
+        inMinute46_60 = team_league_cards_stats_infos.get("in_minute_46_60")
+        inMinute61_75 = team_league_cards_stats_infos.get("in_minute_61_75")
+        inMinute76_90 = team_league_cards_stats_infos.get("in_minute_76_90")
+        inMinute91_105 = team_league_cards_stats_infos.get("in_minute_91_105")
+        inMinute106_120 = team_league_cards_stats_infos.get("in_minute_106_120")
+
+        queryInsert = f"""
+        insert into football_data.teams_cards_stats (id_team, id_league, card_type,
+         in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
+         in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
+         values (
+         (select id from football_data.teams where id_team = {idTeam}),
+         (select id from football_data.leagues where id_league = {idLeague}),
+         '{cardType}', {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
+         {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
+         )
+        """
+
+        return queryInsert
 
