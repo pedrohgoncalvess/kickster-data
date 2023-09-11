@@ -8,6 +8,19 @@ class DataFromDatabase:
         self.__connection__ = DatabaseConnection()
         self.execute_consult = self.__connection__.__perform_consult_query__
 
+    def get_all_players_id_serie_a(self) -> list[int]:
+
+        queryPlayer = self.queries.get_all_id_players_serie_a
+
+        resultQuery = self.execute_consult(queryPlayer)
+        idsList: list[int] = []
+
+        for queryTuple in resultQuery:
+            idsList.append(queryTuple[0])
+
+        return idsList
+
+
     def get_all_teams_id(self) -> list[int]:
 
         queryTeams = self.queries.get_all_team_id
