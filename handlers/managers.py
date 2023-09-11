@@ -69,3 +69,8 @@ class Managers:
             queryInsert = self.queries.insert_player_stat(stat)
             self.execute_insert_query(queryInsert)
 
+    def team_league_stats_management(self, team_league_stat_values:dict[str:any]) -> NoReturn:
+        teamLeagueStat = self.validator.team_leagues_stats_validator(team_league_stat_values)
+        queryInsert = self.queries.insert_team_league_stats(teamLeagueStat)
+        self.execute_insert_query(queryInsert)
+
