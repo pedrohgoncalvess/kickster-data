@@ -29,8 +29,8 @@ class Request:
         response = req.json().get("response")
         return response
 
-    def team_stadium(self, country: str) -> dict[any:any]:
-        url: str = f"https://v3.football.api-sports.io/teams?country={country}"
+    def team_stadium(self, id_league: str | int, season: int = actualSeason) -> dict[any:any]:
+        url: str = f"https://v3.football.api-sports.io/teams?league={id_league}&season={season}"
 
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
@@ -42,7 +42,7 @@ class Request:
         response = req.json().get("response")
         return response
 
-    def champ_fixture(self, id_champ: str | int, season: str | int = actualSeason):
+    def league_fixtures(self, id_champ: str | int, season: str | int = actualSeason):
         url = f"https://v3.football.api-sports.io/fixtures?league={id_champ}&season={season}"
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
@@ -68,6 +68,12 @@ class Request:
 
     def team_league_stats(self, id_team: str | int, id_league: str | int, season: int = actualSeason):
         url = f"https://v3.football.api-sports.io/teams/statistics?league={id_league}&season={season}&team={id_team}"
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
+
+    def fixture_lineups(self, id_fixture: str | int):
+        url = f"https://v3.football.api-sports.io/fixtures/lineups?fixture={id_fixture}"
         req = requests.get(url, headers=self.headers)
         response = req.json().get("response")
         return response
