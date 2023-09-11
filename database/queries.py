@@ -112,7 +112,7 @@ class Queries:
             values 
             ({idFixture},
             (select id from football_data.stadiums where id_stadium = {idStadiumFixture}),
-            (select id from football_data.league where id_league = {idLeague} and season = {seasonFixture}),
+            (select id from football_data.leagues where id_league = {idLeague} and season = {seasonFixture}),
             (select id from football_data.teams where id_team = {idHomeTeamFixture}),
             (select id from football_data.teams where id_team = {idAwayTeamFixture}),
             '{dateFixture}',
@@ -127,7 +127,7 @@ class Queries:
             insert into football_data.fixtures (id_fixture,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
             values 
             ({idFixture},
-            (select id from football_data.league where id_league = {idLeague} and season = {seasonFixture}),
+            (select id from football_data.leagues where id_league = {idLeague} and season = {seasonFixture}),
             (select id from football_data.teams where id_team = {idHomeTeamFixture}),
             (select id from football_data.teams where id_team = {idAwayTeamFixture}),
             '{dateFixture}',
@@ -319,3 +319,42 @@ class Queries:
         """
 
         return queryInsert
+
+    def insert_team_league_stats(self, team_league_stats_infos:dict[str:any]) -> str:
+        idTeam = team_league_stats_infos.get("id_team")
+        idLeague = team_league_stats_infos.get("id_league")
+        fixturesHome = team_league_stats_infos.get("fixtures_home")
+        fixturesAway = team_league_stats_infos.get("fixtures_away")
+        winsHome = team_league_stats_infos.get("wins_home")
+        winsAway = team_league_stats_infos.get("wins_away")
+        drawsHome = team_league_stats_infos.get("draws_home")
+        drawsAway = team_league_stats_infos.get("draws_away")
+        losesHome = team_league_stats_infos.get("loses_home")
+        losesAway = team_league_stats_infos.get("loses_away")
+        cleanSheetsHome = team_league_stats_infos.get("clean_sheets_home")
+        cleanSheetsAway = team_league_stats_infos.get("clean_sheets_away")
+        notScoredHome = team_league_stats_infos.get("not_scored_home")
+        notScoredAway = team_league_stats_infos.get("not_scored_away")
+        maxWinStreak = team_league_stats_infos.get("max_wins_streak")
+        maxDrawsStreak = team_league_stats_infos.get("max_draws_streak")
+        maxLosesStreak = team_league_stats_infos.get("max_loses_streak")
+        betterWinHome = team_league_stats_infos.get("better_win_home")
+        betterWinAway = team_league_stats_infos.get("better_win_away")
+        worstLoseHome = team_league_stats_infos.get("worst_lose_home")
+        worstLoseAway = team_league_stats_infos.get("worst_lose_away")
+
+        queryInsert = f"""
+        insert into football_data.teams_fixtures_stats (
+        id_team, id_league, fixtures_home, fixtures_away, wins_home,
+        wins_away, draws_home, draws_away, loses_home, loses_away, clean_sheets_home, clean_sheets_away, not_scored_home,
+        not_scored_away, max_wins_streak, max_draws_streak, max_loses_streak, better_win_home, worst_lose_home, better_win_away, worst_lose_away)
+         values (
+         (select id from football_data.teams where id_team = {idTeam}),
+         (select id from football_data.leagues where id_league = {idLeague}),
+         {fixturesHome}, {fixturesAway}, {winsHome}, {winsAway}, {drawsHome}, {drawsAway}, {losesHome}, {losesAway}, {cleanSheetsHome}, {cleanSheetsAway},
+         {notScoredHome}, {notScoredAway}, {maxWinStreak}, {maxDrawsStreak}, {maxLosesStreak}, '{betterWinHome}', '{betterWinAway}', '{worstLoseHome}', '{worstLoseAway}'
+         ) 
+        """
+
+        return queryInsert
+
