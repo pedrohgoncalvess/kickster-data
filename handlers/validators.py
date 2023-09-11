@@ -229,7 +229,7 @@ class Validators:
 
         return dictToReturn
 
-    def player_stats_validator(self, player_stats_infos: dict[str:any]):
+    def player_stats_validator(self, player_stats_infos: dict[str:any]) -> dict[str:any]:
         listOfStats: list[dict[str:any]] = []
         for teamInResponse in player_stats_infos:
             idPlayer = teamInResponse.get("player").get("id")
@@ -254,7 +254,8 @@ class Validators:
                 gamesAppearances = gamesRoot.get("appearences")
                 lineUps = gamesRoot.get("lineups")
                 minutesPlayed = gamesRoot.get("minutes")
-                ratingPlayer = "{:.2f}".format(float(gamesRoot.get('rating'))) if gamesRoot.get('rating') is not None else None
+                ratingPlayer = "{:.2f}".format(float(gamesRoot.get('rating'))) if gamesRoot.get(
+                    'rating') is not None else None
                 playerCaptain = gamesRoot.get("captain")
 
                 substitutesIn = substitutesRoot.get("in")
@@ -303,7 +304,8 @@ class Validators:
                     "line_ups": lineUps, "minutes": minutesPlayed,
                     "rating": ratingPlayer, "substitutes_in": substitutesIn, "substitutes_out": substitutesOut,
                     "bench": substitutesBench, "shots_total": shotsTotal,
-                    "shots_on": shotsOn, "goals": goalsTotal, "goals_conceded": goalsConceded, "goals_saved": goalsSaves,
+                    "shots_on": shotsOn, "goals": goalsTotal, "goals_conceded": goalsConceded,
+                    "goals_saved": goalsSaves,
                     "assists": goalsAssists, "total_passes": passesTotal,
                     "passes_key": passesKey, "accuracy_passes": passesAccuracy, "tackles_total": tacklesTotal,
                     "blocks": tacklesBlock, "interceptions": tacklesInterceptions,
@@ -311,7 +313,8 @@ class Validators:
                     "dribbles_success": dribblesSuccess, "dribbles_past": dribblesPast,
                     "fouls_draw": foulsDrawn, "fouls_committed": foulsCommitted, "cards_yellow": cardsYellow,
                     "cards_yellowred": cardsYellowRed, "cards_red": cardsRed,
-                    "penalties_won": penaltyWon, "penalties_committed": penaltyCommitted, "penalties_scored": penaltyScored,
+                    "penalties_won": penaltyWon, "penalties_committed": penaltyCommitted,
+                    "penalties_scored": penaltyScored,
                     "penalties_missed": penaltyMissed, "penalties_saved": penaltySaved
                 }
 
@@ -327,3 +330,53 @@ class Validators:
                 listOfStats.append(dictToReturn)
 
             return listOfStats
+
+    def team_leagues_stats_validator(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
+        idLeague = team_league_stats_infos.get("league").get("id")
+        idTeam = team_league_stats_infos.get("team").get("id")
+        fixturesRoot = team_league_stats_infos.get("fixtures")
+        cleanSheetRoot = team_league_stats_infos.get("clean_sheet")
+        failedToScoreRoot = team_league_stats_infos.get("failed_to_score")
+        streakRoot = team_league_stats_infos.get("biggest")
+
+        fixturesHome = fixturesRoot.get("played").get("home")
+        fixturesAway = fixturesRoot.get("played").get("away")
+        fixturesWinsHome = fixturesRoot.get("wins").get("home")
+        fixturesWinsAway = fixturesRoot.get("wins").get("away")
+        fixturesDrawsHome = fixturesRoot.get("draws").get("home")
+        fixturesDrawsAway = fixturesRoot.get("draws").get("away")
+        fixturesLosesHome = fixturesRoot.get("loses").get("home")
+        fixturesLosesAway = fixturesRoot.get("loses").get("away")
+
+        cleanSheetsHome = cleanSheetRoot.get("home")
+        cleanSheetsAway = cleanSheetRoot.get("away")
+
+        failedToScoreHome = failedToScoreRoot.get("home")
+        failedToScoreAway = failedToScoreRoot.get("away")
+
+        maxWinStreak = streakRoot.get("streak").get("wins")
+        maxDrawStreak = streakRoot.get("streak").get("draws")
+        maxLoseStreak = streakRoot.get("streak").get("loses")
+
+        betterWinHome = streakRoot.get("wins").get("home")
+        betterWinAway = streakRoot.get("wins").get("away")
+        worstLoseHome = streakRoot.get("loses").get("home")
+        worstLoseAway = streakRoot.get("loses").get("away")
+
+        dictToReturn = {
+            "id_team": idTeam, "id_league": idLeague, "fixtures_home": fixturesHome, "fixtures_away": fixturesAway,
+            "wins_home": fixturesWinsHome, "wins_away": fixturesWinsAway, "draws_home": fixturesDrawsHome,
+            "draws_away": fixturesDrawsAway, "loses_home": fixturesLosesHome, "loses_away": fixturesLosesAway,
+            "clean_sheets_home": cleanSheetsHome, "clean_sheets_away": cleanSheetsAway,
+            "not_scored_home": failedToScoreHome,
+            "not_scored_away": failedToScoreAway, "max_wins_streak": maxWinStreak, "max_draws_streak": maxDrawStreak,
+            "max_loses_streak": maxLoseStreak, "better_win_home": betterWinHome, "better_win_away": betterWinAway,
+            "worst_lose_home": worstLoseHome, "worst_lose_away": worstLoseAway
+        }
+
+        for keyValue in list(dictToReturn.keys()):
+            valueDict = dictToReturn.get(keyValue)
+            if valueDict is None:
+                dictToReturn.update({keyValue: 0})
+
+        return dictToReturn
