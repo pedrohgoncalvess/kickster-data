@@ -9,8 +9,9 @@ manager = Managers()
 dataFromDb = DataFromDatabase()
 
 if __name__ == '__main__':
-    idTeams = [135]
-    idLeague = 71
-    for idTeam in idTeams:
+    relationTeamsLeague = dataFromDb.get_all_league_teams_id()
+    for teamLeague in relationTeamsLeague:
+        idLeague = relationTeamsLeague.get(teamLeague).get("id_league")
+        idTeam = relationTeamsLeague.get(teamLeague).get("id_team")
         teamLeagueRawResponse = req.team_league_stats(idTeam, idLeague)
         manager.team_league_stats_management(teamLeagueRawResponse)

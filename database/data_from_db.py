@@ -20,7 +20,6 @@ class DataFromDatabase:
 
         return idsList
 
-
     def get_all_teams_id(self) -> list[int]:
 
         queryTeams = self.queries.get_all_team_id
@@ -66,3 +65,16 @@ class DataFromDatabase:
             idsList.append(queryTuple[0])
 
         return idsList
+
+    def get_all_league_teams_id(self) -> dict[int:int]:
+        queryTeamsLeague = self.queries.get_leagues_teams_relation_id
+        resultQuery = self.execute_consult(queryTeamsLeague)
+        idsRelationDict: dict[dict[str:int]] = {}
+
+        for resultTuple in resultQuery:
+            keyValue = resultTuple[0]
+            idLeague = resultTuple[1]
+            idTeam = resultTuple[2]
+            idsRelationDict.update({keyValue: {"id_league": idLeague, "id_team": idTeam}})
+
+        return idsRelationDict
