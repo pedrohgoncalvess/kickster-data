@@ -76,14 +76,8 @@ class Validators:
                 endLeague = f'{self.actualYear}-01-01'
 
         dictToReturn = {
-            "id": idLeague,
-            "name": nameLeague,
-            "logo": logoLeague,
-            "type": typeLeague,
-            "country": countryLeague,
-            "start": startLeague,
-            "end": endLeague,
-            "season": self.actualYear
+            "id": idLeague, "name": nameLeague, "logo": logoLeague, "type": typeLeague,
+            "country": countryLeague, "start": startLeague, "end": endLeague, "season": self.actualYear
         }
 
         return dictToReturn
@@ -103,16 +97,9 @@ class Validators:
         playerInjured = playerRoot.get("injured")
 
         dictToReturn = {
-            "id": playerID,
-            "name": playerName,
-            "first_name": playerFirstName,
-            "last_name": playerLastName,
-            "birth": playerBirth,
-            "nationality": playerNationality,
-            "height": playerHeight,
-            "weight": playerWeight,
-            "photo": playerPhoto,
-            "injured": playerInjured
+            "id": playerID, "name": playerName, "first_name": playerFirstName, "last_name": playerLastName,
+            "birth": playerBirth, "nationality": playerNationality, "height": playerHeight,
+            "weight": playerWeight, "photo": playerPhoto, "injured": playerInjured
         }
 
         return dictToReturn
@@ -331,7 +318,7 @@ class Validators:
 
             return listOfStats
 
-    def team_leagues_stats_validator(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
+    def team_league_fixtures_stats_validator(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
         idLeague = team_league_stats_infos.get("league").get("id")
         idTeam = team_league_stats_infos.get("team").get("id")
         fixturesRoot = team_league_stats_infos.get("fixtures")
@@ -380,3 +367,42 @@ class Validators:
                 dictToReturn.update({keyValue: 0})
 
         return dictToReturn
+
+    def team_league_goals_stats_validator(self, team_league_goals_stats_infos: dict[str:any]) -> list[dict[str:str]]:
+
+        goalsRoot = team_league_goals_stats_infos.get("goals")
+        listToReturn: list[dict[str:any]] = []
+
+        typesStats = ["for", "against"]
+        for typeStat in typesStats:
+            idLeague = team_league_goals_stats_infos.get("league").get("id")
+            idTeam = team_league_goals_stats_infos.get("team").get("id")
+            typeRoot = goalsRoot.get(typeStat)
+            minuteRoot = typeRoot.get("minute")
+            goalsTotalHome = typeRoot.get("total").get("home")
+            goalsTotalAway = typeRoot.get("total").get("away")
+            minute0_15 = minuteRoot.get("0-15").get("total")
+            minute16_30 = minuteRoot.get("16-30").get("total")
+            minute31_45 = minuteRoot.get("31-45").get("total")
+            minute46_60 = minuteRoot.get("46-60").get("total")
+            minute61_75 = minuteRoot.get("61-75").get("total")
+            minute76_90 = minuteRoot.get("76-90").get("total")
+            minute91_105 = minuteRoot.get("91-105").get("total")
+            minute106_120 = minuteRoot.get("106-120").get("total")
+
+            dictToReturn = {"type":typeStat, "id_league": idLeague, "id_team": idTeam, "goals_home": goalsTotalHome, "goals_away": goalsTotalAway,
+                            "in_minute_0_15": minute0_15, "in_minute_16_30": minute16_30,
+                            "in_minute_31_45": minute31_45, "in_minute_46_60": minute46_60,
+                            "in_minute_61_75": minute61_75,
+                            "in_minute_76_90": minute76_90, "in_minute_91_105": minute91_105,
+                            "in_minute_106_120": minute106_120
+                            }
+
+            for keyValue in list(dictToReturn.keys()):
+                valueStat = dictToReturn.get(keyValue)
+                if valueStat is None:
+                    dictToReturn.update({keyValue:0})
+
+            listToReturn.append(dictToReturn)
+
+        return listToReturn
