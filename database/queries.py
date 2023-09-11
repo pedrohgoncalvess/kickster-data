@@ -8,6 +8,12 @@ class Queries:
         self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1"
         self.get_all_fixtures_id = "select id_fixture from football_data.fixtures"
         self.get_all_id_players_serie_a = "select p.id_player from football_data.teams_squad ts inner join football_data.players p on p.id = ts.id where ts.id_team in (select distinct(team.id) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1)"
+        self.get_leagues_teams_relation_id = """with teams_league as (select lg.id_league, ts.id_team, concat(lg.id_league || '-' || ts.id_team) id_compost
+                                    from football_data.fixtures fx
+                                       inner join football_data.teams ts on ts.id = fx.id_team_home
+                                       inner join football_data.leagues lg on lg.id = fx.id_league
+                                                        )
+                                    select distinct(teams_league.id_compost), teams_league.id_league, teams_league.id_team from teams_league"""
 
     def update_fixture_data_status(self, id_fixture: int) -> NoReturn:
         return f"update football_data.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
@@ -320,28 +326,28 @@ class Queries:
 
         return queryInsert
 
-    def insert_team_league_stats(self, team_league_stats_infos:dict[str:any]) -> str:
-        idTeam = team_league_stats_infos.get("id_team")
-        idLeague = team_league_stats_infos.get("id_league")
-        fixturesHome = team_league_stats_infos.get("fixtures_home")
-        fixturesAway = team_league_stats_infos.get("fixtures_away")
-        winsHome = team_league_stats_infos.get("wins_home")
-        winsAway = team_league_stats_infos.get("wins_away")
-        drawsHome = team_league_stats_infos.get("draws_home")
-        drawsAway = team_league_stats_infos.get("draws_away")
-        losesHome = team_league_stats_infos.get("loses_home")
-        losesAway = team_league_stats_infos.get("loses_away")
-        cleanSheetsHome = team_league_stats_infos.get("clean_sheets_home")
-        cleanSheetsAway = team_league_stats_infos.get("clean_sheets_away")
-        notScoredHome = team_league_stats_infos.get("not_scored_home")
-        notScoredAway = team_league_stats_infos.get("not_scored_away")
-        maxWinStreak = team_league_stats_infos.get("max_wins_streak")
-        maxDrawsStreak = team_league_stats_infos.get("max_draws_streak")
-        maxLosesStreak = team_league_stats_infos.get("max_loses_streak")
-        betterWinHome = team_league_stats_infos.get("better_win_home")
-        betterWinAway = team_league_stats_infos.get("better_win_away")
-        worstLoseHome = team_league_stats_infos.get("worst_lose_home")
-        worstLoseAway = team_league_stats_infos.get("worst_lose_away")
+    def insert_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> str:
+        idTeam = team_league_fixtures_stats_infos.get("id_team")
+        idLeague = team_league_fixtures_stats_infos.get("id_league")
+        fixturesHome = team_league_fixtures_stats_infos.get("fixtures_home")
+        fixturesAway = team_league_fixtures_stats_infos.get("fixtures_away")
+        winsHome = team_league_fixtures_stats_infos.get("wins_home")
+        winsAway = team_league_fixtures_stats_infos.get("wins_away")
+        drawsHome = team_league_fixtures_stats_infos.get("draws_home")
+        drawsAway = team_league_fixtures_stats_infos.get("draws_away")
+        losesHome = team_league_fixtures_stats_infos.get("loses_home")
+        losesAway = team_league_fixtures_stats_infos.get("loses_away")
+        cleanSheetsHome = team_league_fixtures_stats_infos.get("clean_sheets_home")
+        cleanSheetsAway = team_league_fixtures_stats_infos.get("clean_sheets_away")
+        notScoredHome = team_league_fixtures_stats_infos.get("not_scored_home")
+        notScoredAway = team_league_fixtures_stats_infos.get("not_scored_away")
+        maxWinStreak = team_league_fixtures_stats_infos.get("max_wins_streak")
+        maxDrawsStreak = team_league_fixtures_stats_infos.get("max_draws_streak")
+        maxLosesStreak = team_league_fixtures_stats_infos.get("max_loses_streak")
+        betterWinHome = team_league_fixtures_stats_infos.get("better_win_home")
+        betterWinAway = team_league_fixtures_stats_infos.get("better_win_away")
+        worstLoseHome = team_league_fixtures_stats_infos.get("worst_lose_home")
+        worstLoseAway = team_league_fixtures_stats_infos.get("worst_lose_away")
 
         queryInsert = f"""
         insert into football_data.teams_fixtures_stats (
@@ -357,4 +363,35 @@ class Queries:
         """
 
         return queryInsert
+
+
+    def insert_team_league_goals_stats(self, team_league_goals_stats_infos:dict[str:any]) -> str:
+        idTeam = team_league_goals_stats_infos.get("id_team")
+        idLeague = team_league_goals_stats_infos.get("id_league")
+        typeStat = team_league_goals_stats_infos.get("type")
+        goalsHome = team_league_goals_stats_infos.get("goals_home")
+        goalsAway = team_league_goals_stats_infos.get("goals_away")
+        inMinute0_15 = team_league_goals_stats_infos.get("in_minute_0_15")
+        inMinute16_30 = team_league_goals_stats_infos.get("in_minute_16_30")
+        inMinute31_45 = team_league_goals_stats_infos.get("in_minute_31_45")
+        inMinute46_60 = team_league_goals_stats_infos.get("in_minute_46_60")
+        inMinute61_75 = team_league_goals_stats_infos.get("in_minute_61_75")
+        inMinute76_90 = team_league_goals_stats_infos.get("in_minute_76_90")
+        inMinute91_105 = team_league_goals_stats_infos.get("in_minute_91_105")
+        inMinute106_120 = team_league_goals_stats_infos.get("in_minute_106_120")
+
+        queryInsert = f"""
+        insert into football_data.teams_goals_stats (id_team, id_league, "type", goals_home, goals_away,
+         in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
+         in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
+         values (
+         (select id from football_data.teams where id_team = {idTeam}),
+         (select id from football_data.leagues where id_league = {idLeague}),
+         '{typeStat}', {goalsHome}, {goalsAway}, {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
+         {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
+         )
+        """
+
+        return queryInsert
+
 
