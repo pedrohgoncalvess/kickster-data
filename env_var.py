@@ -12,3 +12,9 @@ def getHeaders():
     return {
         "x-rapidapi-key": getVar("API_TOKEN")
     }
+
+
+def get_leagues_to_analyze():
+    import os
+    leagues = os.getenv("LEAGUES_TO_ANALYZE").split(",")
+    return leagues
