@@ -1,4 +1,4 @@
-create schema if not exists "football_data";
+create schema if not exists "ftb";
 SET timezone = 'America/Sao_Paulo';
 
 CREATE OR REPLACE FUNCTION update_teams_squad_updated_at()
@@ -9,16 +9,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER teams_squad_updated_at_trigger
-BEFORE UPDATE ON "football_data".teams_squad
-FOR EACH ROW
-EXECUTE FUNCTION update_teams_squad_updated_at();
-
 CREATE OR REPLACE FUNCTION generate_compost_id_fixture_team(id_fixture integer, id_team integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
 BEGIN
     RETURN id_fixture || '-' || id_team;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION generate_compost_id_fixture_lineup(id_fixture integer, id_player integer)
+RETURNS varchar(20) IMMUTABLE
+AS $$
+BEGIN
+    RETURN id_fixture || '-' || id_player;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -81,7 +84,7 @@ $$
 language plpgsql;
 
 
-create table if not exists "football_data".stadiums
+create table if not exists "ftb".stadiums
 (
     id serial,
     id_stadium integer not null unique,
@@ -96,7 +99,7 @@ create table if not exists "football_data".stadiums
     constraint stadiums_pk primary key (id)
 );
 
-create table if not exists "football_data".teams
+create table if not exists "ftb".teams
 (
     id serial,
     id_team integer not null unique,
@@ -109,11 +112,11 @@ create table if not exists "football_data".teams
     "national" bool not null,
 
     constraint teams_pk primary key (id),
-    constraint teams_stadium foreign key (id_stadium) references "football_data".stadiums (id)
+    constraint teams_stadium foreign key (id_stadium) references "ftb".stadiums (id)
 );
 
 
-create table if not exists "football_data".players
+create table if not exists "ftb".players
 (
     id serial,
     id_player integer not null unique,
@@ -130,7 +133,7 @@ create table if not exists "football_data".players
 );
 
 
-create table if not exists "football_data".teams_squad
+create table if not exists "ftb".teams_squad
 (
     id serial,
     id_team integer not null,
@@ -142,11 +145,16 @@ create table if not exists "football_data".teams_squad
     id_compost varchar(15) unique GENERATED ALWAYS as (generate_compost_id_team_player(id_team,id_player)) STORED,
 
     constraint teams_squad_pk primary key (id),
-    constraint squad_team_fk foreign key (id_team) references "football_data".teams (id),
-    constraint squad_player_fk foreign key (id_player) references "football_data".players (id)
+    constraint squad_team_fk foreign key (id_team) references "ftb".teams (id),
+    constraint squad_player_fk foreign key (id_player) references "ftb".players (id)
 );
 
-create table if not exists "football_data".leagues
+CREATE OR REPLACE TRIGGER teams_squad_updated_at_trigger
+BEFORE UPDATE ON "ftb".teams_squad
+FOR EACH ROW
+EXECUTE FUNCTION update_teams_squad_updated_at();
+
+create table if not exists "ftb".leagues
 (
     id serial,
     id_league integer not null,
@@ -162,7 +170,7 @@ create table if not exists "football_data".leagues
     constraint champs_pk primary key (id)
 );
 
-create table if not exists "football_data".fixtures
+create table if not exists "ftb".fixtures
 (
     id serial,
     id_fixture integer not null unique,
@@ -178,18 +186,19 @@ create table if not exists "football_data".fixtures
     data_status varchar(10) default 'waiting',
 
     constraint fixtures_pk primary key (id),
-    constraint fixtures_league_fk foreign key (id_league) references "football_data".leagues (id),
-    constraint fixtures_team_home_fk foreign key (id_team_home) references "football_data".teams (id),
-    constraint fixtures_team_away_fk foreign key (id_team_away) references "football_data".teams (id),
-    constraint fixtures_stadium_fk foreign key (id_stadium) references "football_data".stadiums (id)
+    constraint fixtures_league_fk foreign key (id_league) references "ftb".leagues (id),
+    constraint fixtures_team_home_fk foreign key (id_team_home) references "ftb".teams (id),
+    constraint fixtures_team_away_fk foreign key (id_team_away) references "ftb".teams (id),
+    constraint fixtures_stadium_fk foreign key (id_stadium) references "ftb".stadiums (id)
 );
 
-create table if not exists "football_data".fixtures_stats
+create table if not exists "ftb".fixtures_stats
 (
     id serial,
     id_fixture integer not null,
     id_team integer not null,
     home bool not null,
+    id_coach integer not null,
     formation varchar(10) not null,
     shots_on_goal integer not null,
     shots_off_goal integer not null,
@@ -209,11 +218,11 @@ create table if not exists "football_data".fixtures_stats
     id_compost varchar(15) generated always as (generate_compost_id_fixture_team(id_fixture,id_team)) stored,
 
     constraint fixtures_statistics_pk primary key (id),
-    constraint fixtures_statistics_fixture_fk foreign key (id_fixture) references football_data.fixtures (id),
-    constraint fixtures_statistics_team_fk foreign key (id_team) references football_data.teams (id)
+    constraint fixtures_statistics_fixture_fk foreign key (id_fixture) references ftb.fixtures (id),
+    constraint fixtures_statistics_team_fk foreign key (id_team) references ftb.teams (id)
 );
 
-create table if not exists "football_data".fixtures_events
+create table if not exists "ftb".fixtures_events
 (
     id serial,
     id_team integer not null,
@@ -227,13 +236,13 @@ create table if not exists "football_data".fixtures_events
     id_compost varchar(50) not null unique generated always as (generate_compost_id_fixture_event(id_fixture, id_team, "time", type_event)) stored,
 
     constraint fixtures_events_pk primary key (id),
-    constraint fixtures_events_player_principal foreign key (id_player_principal) references "football_data".players (id),
-    constraint fixtures_events_player_assist foreign key (id_player_assist) references "football_data".players (id),
-    constraint fixtures_events_team foreign key (id_team) references "football_data".teams (id),
-    constraint fixtures_events_fk foreign key (id_fixture) references "football_data".fixtures (id)
+    constraint fixtures_events_player_principal foreign key (id_player_principal) references "ftb".players (id),
+    constraint fixtures_events_player_assist foreign key (id_player_assist) references "ftb".players (id),
+    constraint fixtures_events_team foreign key (id_team) references "ftb".teams (id),
+    constraint fixtures_events_fk foreign key (id_fixture) references "ftb".fixtures (id)
 );
 
-create table if not exists "football_data".players_stats
+create table if not exists "ftb".players_stats
 (
   id serial,
   id_player integer not null,
@@ -278,13 +287,13 @@ create table if not exists "football_data".players_stats
   id_compost varchar(20) unique generated always as (generate_compost_id_player_stat(id_player,id_league,id_team)) stored,
 
   constraint players_stats_pk primary key (id),
-  constraint players_fk foreign key (id_player) references "football_data".players (id),
-  constraint players_leagues_fk foreign key (id_league) references "football_data".leagues (id),
-  constraint players_teams_fk foreign key (id_team) references "football_data".teams (id)
+  constraint players_fk foreign key (id_player) references "ftb".players (id),
+  constraint players_leagues_fk foreign key (id_league) references "ftb".leagues (id),
+  constraint players_teams_fk foreign key (id_team) references "ftb".teams (id)
 );
 
 
-create table if not exists "football_data".teams_fixtures_stats
+create table if not exists "ftb".teams_fixtures_stats
 (
     id serial,
     id_team integer not null,
@@ -312,11 +321,11 @@ create table if not exists "football_data".teams_fixtures_stats
         GENERATED ALWAYS AS (generate_compost_id_team_league(id_team, id_league)) STORED,
 
     constraint teams_fixtures_stats_pk primary key (id),
-    constraint teams_fixtures_stats_team_fk foreign key (id_team) references "football_data".teams (id),
-    constraint teams_fixtures_stats_league_fk foreign key (id_league) references "football_data".leagues (id)
+    constraint teams_fixtures_stats_team_fk foreign key (id_team) references "ftb".teams (id),
+    constraint teams_fixtures_stats_league_fk foreign key (id_league) references "ftb".leagues (id)
 );
 
-create table if not exists "football_data".teams_goals_stats
+create table if not exists "ftb".teams_goals_stats
 (
     id serial,
     id_team integer not null,
@@ -336,11 +345,11 @@ create table if not exists "football_data".teams_goals_stats
         GENERATED ALWAYS AS (generate_compost_id_team_league_goal_type(id_team, id_league, "type")) STORED,
 
     constraint teams_goals_stats_pk primary key (id),
-    constraint teams_goals_stats_team_fk foreign key (id_team) references "football_data".teams,
-    constraint teams_goals_stats_league_fk foreign key (id_league) references "football_data".leagues
+    constraint teams_goals_stats_team_fk foreign key (id_team) references "ftb".teams,
+    constraint teams_goals_stats_league_fk foreign key (id_league) references "ftb".leagues
 );
 
-create table if not exists "football_data".teams_cards_stats
+create table if not exists "ftb".teams_cards_stats
 (
     id serial,
     id_team integer not null,
@@ -358,6 +367,24 @@ create table if not exists "football_data".teams_cards_stats
         GENERATED ALWAYS as (generate_compost_id_team_league_card(id_team,id_league, card_type)) STORED,
 
     constraint teams_cards_stats_pk primary key (id),
-    constraint teams_cards_stats_team_fk foreign key (id_team) references "football_data".teams (id),
-    constraint teams_cards_stats_league_fk foreign key (id_league) references "football_data".leagues (id)
+    constraint teams_cards_stats_team_fk foreign key (id_team) references "ftb".teams (id),
+    constraint teams_cards_stats_league_fk foreign key (id_league) references "ftb".leagues (id)
 );
+
+create table if not exists "ftb".fixtures_lineups
+(
+    id serial,
+    id_fixture integer not null,
+    id_team integer not null,
+    id_player integer not null,
+    "type" char(5) not null,
+    "position" char(1) not null,
+    grid char(3) not null,
+    id_compost varchar(10) unique
+        generated always as (generate_compost_id_fixture_lineup(id_fixture, id_player)) stored,
+
+    constraint fixtures_lineups_pk primary key (id),
+    constraint fixtures_lineups_fixture_fk foreign key (id_fixture) references "ftb".fixtures (id),
+    constraint fixtures_lineups_team_fk foreign key (id_team) references "ftb".teams (id),
+    constraint fixtures_lineups_player_fk foreign key (id_player) references "ftb".players (id)
+)
