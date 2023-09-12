@@ -29,6 +29,13 @@ class Request:
         response = req.json().get("response")
         return response
 
+    def league_by_id(self, id_league: int | str, season: int = actualSeason):
+        url: str = f"https://v3.football.api-sports.io/leagues?id={id_league}&season={season}"
+
+        req = requests.get(url, headers=self.headers)
+        response = req.json().get("response")
+        return response
+
     def team_stadium(self, id_league: str | int, season: int = actualSeason) -> dict[any:any]:
         url: str = f"https://v3.football.api-sports.io/teams?league={id_league}&season={season}"
 
