@@ -14,4 +14,4 @@ if __name__ == '__main__':
         idLeague = relationTeamsLeague.get(teamLeague).get("id_league")
         idTeam = relationTeamsLeague.get(teamLeague).get("id_team")
         teamLeagueRawResponse = req.team_league_stats(idTeam, idLeague)
-        manager.team_league_stats_management(teamLeagueRawResponse)
+        manager.team_league_fixtures_stats_management(teamLeagueRawResponse)
