@@ -26,17 +26,19 @@ class Managers:
 
             self.execute_insert_query(queryInsert)
 
-    def league_management(self, champ_infos: dict[str, dict]):
-        leagueInfos = self.validator.league_validator(champ_infos)
-        queryInsert = self.queries.insert_league(leagueInfos)
+    def league_management(self, league_infos: dict[str, dict]):
+        for league in league_infos:
+            leagueInfos = self.validator.league_validator(league)
+            queryInsert = self.queries.insert_league(leagueInfos)
 
-        self.execute_insert_query(queryInsert)
+            self.execute_insert_query(queryInsert)
 
-    def player_management(self, player_values: dict):
-        playerInfos = self.validator.player_validator(player_values)
-        queryInsert = self.queries.insert_player(playerInfos)
+    def player_management(self, player_values: list[dict[str:str]]):
+        for playerValue in player_values:
+            playerInfos = self.validator.player_validator(playerValue)
+            queryInsert = self.queries.insert_player(playerInfos)
 
-        self.execute_insert_query(queryInsert)
+            self.execute_insert_query(queryInsert)
 
     def fixture_management(self, fixtures_values: dict) -> NoReturn:
         for fixtureValues in fixtures_values:
@@ -90,3 +92,9 @@ class Managers:
             queryInsert = self.queries.insert_team_league_cards_stats(typeCard)
             self.execute_insert_query(queryInsert)
 
+    def fixture_lineups_management(self, fixture_lineups_values: list[dict[str:any]], id_fixture: str | int) -> NoReturn:
+        for teamLineUp in fixture_lineups_values:
+            fixtureTeamLineUp = self.validator.fixture_lineup_validator(teamLineUp, id_fixture)
+            for playerInLineUp in fixtureTeamLineUp:
+                queryInsert = self.queries.insert_fixture_lineup(playerInLineUp)
+                self.execute_insert_query(queryInsert)
