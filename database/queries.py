@@ -3,20 +3,20 @@ from typing import NoReturn
 
 class Queries:
     def __init__(self):
-        self.get_all_team_id = "select id_team from football_data.teams"
-        self.get_all_league_id = "select id_league from football_data.leagues"
-        self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1"
-        self.get_all_fixtures_id = "select id_fixture from football_data.fixtures"
-        self.get_all_id_players_serie_a = "select p.id_player from football_data.teams_squad ts inner join football_data.players p on p.id = ts.id where ts.id_team in (select distinct(team.id) as id_team from football_data.fixtures fx inner join football_data.teams team on team.id = fx.id_team_home where fx.id_league = 1)"
+        self.get_all_team_id = "select id_team from ftb.teams"
+        self.get_all_league_id = "select id_league from ftb.leagues"
+        self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1"
+        self.get_all_fixtures_id = "select id_fixture from ftb.fixtures"
+        self.get_all_id_players_serie_a = "select p.id_player from ftb.teams_squad ts inner join ftb.players p on p.id = ts.id where ts.id_team in (select distinct(team.id) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1)"
         self.get_leagues_teams_relation_id = """with teams_league as (select lg.id_league, ts.id_team, concat(lg.id_league || '-' || ts.id_team) id_compost
-                                    from football_data.fixtures fx
-                                       inner join football_data.teams ts on ts.id = fx.id_team_home
-                                       inner join football_data.leagues lg on lg.id = fx.id_league
+                                    from ftb.fixtures fx
+                                       inner join ftb.teams ts on ts.id = fx.id_team_home
+                                       inner join ftb.leagues lg on lg.id = fx.id_league
                                                         )
                                     select distinct(teams_league.id_compost), teams_league.id_league, teams_league.id_team from teams_league"""
 
     def update_fixture_data_status(self, id_fixture: int) -> NoReturn:
-        return f"update football_data.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
+        return f"update ftb.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
 
     def insert_stadium(self, stadium_values: dict[str:str]) -> str:
 
@@ -31,7 +31,7 @@ class Queries:
 
         queryInsert = f"""
 
-        insert into "football_data".stadiums (id_stadium, "name", state, city, address, capacity, surface, image)
+        insert into "ftb".stadiums (id_stadium, "name", state, city, address, capacity, surface, image)
         values ({idExStadium}, '{nameStadium}', '{stateStadium}', '{cityStatium}', '{addressStatium}', {capacityStatium}, '{surfaceStadium}', '{imageStadium}')
 
         """
@@ -51,12 +51,12 @@ class Queries:
 
         if idStadium is not None:
             queryInsert = f"""
-            insert into football_data.teams (id_team, id_stadium, code, "name", country, logo, founded, "national") values
-            ({idExTeam}, (select id from football_data.stadiums where id_stadium = {idStadium}), '{codeTeam}', '{nameTeam}', '{countryTeam}', '{logoTeam}', {foundedTeam}, {nationalTeam})       
+            insert into ftb.teams (id_team, id_stadium, code, "name", country, logo, founded, "national") values
+            ({idExTeam}, (select id from ftb.stadiums where id_stadium = {idStadium}), '{codeTeam}', '{nameTeam}', '{countryTeam}', '{logoTeam}', {foundedTeam}, {nationalTeam})       
             """
         else:
             queryInsert = f"""
-                        insert into football_data.teams (id_team, code, "name", country, logo, founded, "national") values
+                        insert into ftb.teams (id_team, code, "name", country, logo, founded, "national") values
                         ({idExTeam}, '{codeTeam}', '{nameTeam}', '{countryTeam}', '{logoTeam}', {foundedTeam}, {nationalTeam})       
                         """
 
@@ -74,7 +74,7 @@ class Queries:
         seasonLeague = leagues_values.get('season')
 
         queryInsert = f"""
-        insert into football_data.leagues (id_league,"name",country,"type",season,start_league,end_league,logo)
+        insert into ftb.leagues (id_league,"name",country,"type",season,start_league,end_league,logo)
         values ({idLeague},'{nameLeague}','{countryLeague}','{typeLeague}',{seasonLeague},'{startLeague}','{endLeague}','{logoLeague}')
         """
 
@@ -93,7 +93,7 @@ class Queries:
         photoPlayer = player_values.get('photo')
 
         queryInsert = f"""
-        insert into football_data.players (id_player, "name", first_name, last_name, date_of_birth, nationality, height, weight,photo)
+        insert into ftb.players (id_player, "name", first_name, last_name, date_of_birth, nationality, height, weight,photo)
         values ({idPlayer},'{namePlayer}','{firstNamePlayer}','{lastNamePlayer}','{birthPlayer}','{nationalityPlayer}',{heightPlayer},{weightPlayer},'{photoPlayer}')
         """
 
@@ -114,13 +114,13 @@ class Queries:
 
         if idStadiumFixture != None:
             queryInsert = f"""
-            insert into football_data.fixtures (id_fixture,id_stadium,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
+            insert into ftb.fixtures (id_fixture,id_stadium,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
             values 
             ({idFixture},
-            (select id from football_data.stadiums where id_stadium = {idStadiumFixture}),
-            (select id from football_data.leagues where id_league = {idLeague} and season = {seasonFixture}),
-            (select id from football_data.teams where id_team = {idHomeTeamFixture}),
-            (select id from football_data.teams where id_team = {idAwayTeamFixture}),
+            (select id from ftb.stadiums where id_stadium = {idStadiumFixture}),
+            (select id from ftb.leagues where id_league = {idLeague} and season = {seasonFixture}),
+            (select id from ftb.teams where id_team = {idHomeTeamFixture}),
+            (select id from ftb.teams where id_team = {idAwayTeamFixture}),
             '{dateFixture}',
             '{resultFixture}',
             '{roundFixture}',
@@ -130,12 +130,12 @@ class Queries:
             """
         else:
             queryInsert = f"""
-            insert into football_data.fixtures (id_fixture,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
+            insert into ftb.fixtures (id_fixture,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
             values 
             ({idFixture},
-            (select id from football_data.leagues where id_league = {idLeague} and season = {seasonFixture}),
-            (select id from football_data.teams where id_team = {idHomeTeamFixture}),
-            (select id from football_data.teams where id_team = {idAwayTeamFixture}),
+            (select id from ftb.leagues where id_league = {idLeague} and season = {seasonFixture}),
+            (select id from ftb.teams where id_team = {idHomeTeamFixture}),
+            (select id from ftb.teams where id_team = {idAwayTeamFixture}),
             '{dateFixture}',
             '{resultFixture}',
             '{roundFixture}',
@@ -153,11 +153,11 @@ class Queries:
         numberPlayer = player_squad_infos.get("number")
 
         queryInsert = f"""
-        insert into football_data.teams_squad (id_team, id_player, shirt_number, "position") 
+        insert into ftb.teams_squad (id_team, id_player, shirt_number, "position") 
         values
          (
-         (select id from football_data.teams where id_team = {idTeam}),
-         (select id from football_data.players where id_player = {idPlayer}),
+         (select id from ftb.teams where id_team = {idTeam}),
+         (select id from ftb.players where id_player = {idPlayer}),
          {numberPlayer},
          '{positionPlayer}'
          )
@@ -170,6 +170,7 @@ class Queries:
         idFixture = team_fixture_stats_infos.get("id_fixture")
         idTeam = team_fixture_stats_infos.get("id_team")
         formation = team_fixture_stats_infos.get("formation")
+        coach = team_fixture_stats_infos.get("coach")
         shotsOnGoal = team_fixture_stats_infos.get("shots_on_goal")
         shotsOffGoal = team_fixture_stats_infos.get("shots_off_goal")
         shotsBlocked = team_fixture_stats_infos.get("blocked_shots")
@@ -187,11 +188,12 @@ class Queries:
         expectedGoals = team_fixture_stats_infos.get("expected_goals")
 
         queryInsert = f"""
-        insert into football_data.fixtures_stats (id_fixture, id_team, home, formation,shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
+        insert into ftb.fixtures_stats (id_fixture, id_team, home, id_coach, formation,shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
         values (
-        (select id from football_data.fixtures where id_fixture = {idFixture}),
-        (select id from football_data.teams where id_team = {idTeam}),
-        (select case when id_team_home = (select id from football_data.teams where id_team = {idTeam}) then true else false end from football_data.fixtures where id_fixture = {idFixture}),
+        (select id from ftb.fixtures where id_fixture = {idFixture}),
+        (select id from ftb.teams where id_team = {idTeam}),
+        (select case when id_team_home = (select id from ftb.teams where id_team = {idTeam}) then true else false end from ftb.fixtures where id_fixture = {idFixture}),
+        {coach},
         '{formation}',
         {shotsOnGoal},
         {shotsOffGoal},
@@ -226,12 +228,12 @@ class Queries:
 
         if idPlayerAssist is not None:
             queryInsert = f"""
-            insert into football_data.fixtures_events (id_team, id_fixture, id_player_principal, id_player_assist, "time", type_event, "detail", "comments")
+            insert into ftb.fixtures_events (id_team, id_fixture, id_player_principal, id_player_assist, "time", type_event, "detail", "comments")
             values (
-            (select id from football_data.teams where id_team = {idTeam}),
-            (select id from football_data.fixtures where id_fixture = {idFixture}),
-            (select id from football_data.players where id_player = {idPrincipalPlayer}),
-            (select id from football_data.players where id_player = {idPlayerAssist}),
+            (select id from ftb.teams where id_team = {idTeam}),
+            (select id from ftb.fixtures where id_fixture = {idFixture}),
+            (select id from ftb.players where id_player = {idPrincipalPlayer}),
+            (select id from ftb.players where id_player = {idPlayerAssist}),
             {timeElapsed},
             '{typeEvent}',
             '{detailEvent}',
@@ -240,11 +242,11 @@ class Queries:
             """
         else:
             queryInsert = f"""
-            insert into football_data.fixtures_events (id_team, id_fixture, id_player_principal, "time", type_event, "detail", "comments")
+            insert into ftb.fixtures_events (id_team, id_fixture, id_player_principal, "time", type_event, "detail", "comments")
             values (
-            (select id from football_data.teams where id_team = {idTeam}),
-            (select id from football_data.fixtures where id_fixture = {idFixture}),
-            (select id from football_data.players where id_player = {idPrincipalPlayer}),
+            (select id from ftb.teams where id_team = {idTeam}),
+            (select id from ftb.fixtures where id_fixture = {idFixture}),
+            (select id from ftb.players where id_player = {idPrincipalPlayer}),
             {timeElapsed},
             '{typeEvent}',
             '{detailEvent}',
@@ -253,10 +255,10 @@ class Queries:
             """
             if idPrincipalPlayer is None:
                 queryInsert = f"""
-                insert into football_data.fixtures_events (id_team, id_fixture, "time", type_event, "detail", "comments")
+                insert into ftb.fixtures_events (id_team, id_fixture, "time", type_event, "detail", "comments")
                 values (
-                (select id from football_data.teams where id_team = {idTeam}),
-                (select id from football_data.fixtures where id_fixture = {idFixture}),
+                (select id from ftb.teams where id_team = {idTeam}),
+                (select id from ftb.fixtures where id_fixture = {idFixture}),
                 {timeElapsed},
                 '{typeEvent}',
                 '{detailEvent}',
@@ -310,14 +312,14 @@ class Queries:
         penaltiesSaved = player_stat_infos.get("penalties_saved")
 
         queryInsert = f"""
-        insert into football_data.players_stats (id_player, id_league, id_team, "position", captain, appearances, lineups, "minutes", rating, substitutes_in, 
+        insert into ftb.players_stats (id_player, id_league, id_team, "position", captain, appearances, lineups, "minutes", rating, substitutes_in, 
         substitutes_out, bench, shots_total, shots_on, goals, assists, conceded_goals, saved_goals, total_pass, key_pass, accuracy_pass, tackles, blocks,
         interceptions, total_duels, win_duels, attempted_dribbles, success_dribbles, past_dribbles, drawn_fouls, committed_fouls, yellow_cards, yellow_red_cards,
         red_cards, won_penalties, committed_penalties, scored_penalties, missed_penalty, saved_penalty 
         ) values (
-        (select id from football_data.players where id_player = {idPlayer}),
-        (select id from football_data.leagues where id_league = {idLeague} and season = {seasonLeague}),
-        (select id from football_data.teams where id_team = {idTeam}), 
+        (select id from ftb.players where id_player = {idPlayer}),
+        (select id from ftb.leagues where id_league = {idLeague} and season = {seasonLeague}),
+        (select id from ftb.teams where id_team = {idTeam}), 
         '{positionPlayer}', {isCaptain}, {gamesAppearances}, {gamesLineUps}, {gamesMinutes}, {ratingPlayer}, {substitutesIn}, {substitutesOut}, 
         {bench}, {shotsTotal}, {shotsOn}, {goals}, {assists}, {goalsConceded}, {goalsSaved}, {passesTotal}, {passesKey}, 
         {passesAccuracy}, {tacklesTotal}, {blocks}, {interceptions}, {duelsTotal}, {duelsWin}, {dribblesAttempted},
@@ -352,13 +354,13 @@ class Queries:
         worstLoseAway = team_league_fixtures_stats_infos.get("worst_lose_away")
 
         queryInsert = f"""
-        insert into football_data.teams_fixtures_stats (
+        insert into ftb.teams_fixtures_stats (
         id_team, id_league, fixtures_home, fixtures_away, wins_home,
         wins_away, draws_home, draws_away, loses_home, loses_away, clean_sheets_home, clean_sheets_away, not_scored_home,
         not_scored_away, max_wins_streak, max_draws_streak, max_loses_streak, better_win_home, worst_lose_home, better_win_away, worst_lose_away)
          values (
-         (select id from football_data.teams where id_team = {idTeam}),
-         (select id from football_data.leagues where id_league = {idLeague}),
+         (select id from ftb.teams where id_team = {idTeam}),
+         (select id from ftb.leagues where id_league = {idLeague}),
          {fixturesHome}, {fixturesAway}, {winsHome}, {winsAway}, {drawsHome}, {drawsAway}, {losesHome}, {losesAway}, {cleanSheetsHome}, {cleanSheetsAway},
          {notScoredHome}, {notScoredAway}, {maxWinStreak}, {maxDrawsStreak}, {maxLosesStreak}, '{betterWinHome}', '{betterWinAway}', '{worstLoseHome}', '{worstLoseAway}'
          ) 
@@ -383,12 +385,12 @@ class Queries:
         inMinute106_120 = team_league_goals_stats_infos.get("in_minute_106_120")
 
         queryInsert = f"""
-        insert into football_data.teams_goals_stats (id_team, id_league, "type", goals_home, goals_away,
+        insert into ftb.teams_goals_stats (id_team, id_league, "type", goals_home, goals_away,
          in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
          in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
          values (
-         (select id from football_data.teams where id_team = {idTeam}),
-         (select id from football_data.leagues where id_league = {idLeague}),
+         (select id from ftb.teams where id_team = {idTeam}),
+         (select id from ftb.leagues where id_league = {idLeague}),
          '{typeStat}', {goalsHome}, {goalsAway}, {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
          {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
          )
@@ -410,15 +412,37 @@ class Queries:
         inMinute106_120 = team_league_cards_stats_infos.get("in_minute_106_120")
 
         queryInsert = f"""
-        insert into football_data.teams_cards_stats (id_team, id_league, card_type,
+        insert into ftb.teams_cards_stats (id_team, id_league, card_type,
          in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
          in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
          values (
-         (select id from football_data.teams where id_team = {idTeam}),
-         (select id from football_data.leagues where id_league = {idLeague}),
+         (select id from ftb.teams where id_team = {idTeam}),
+         (select id from ftb.leagues where id_league = {idLeague}),
          '{cardType}', {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
          {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
          )
+        """
+
+        return queryInsert
+
+    def insert_fixture_lineup(self, fixture_lineup_infos:dict[str:any]) -> str:
+        idTeam = fixture_lineup_infos.get("id_team")
+        idFixture = fixture_lineup_infos.get("id_fixture")
+        idPlayer = fixture_lineup_infos.get("id_player")
+        typeLineUp = fixture_lineup_infos.get("type")
+        positionPlayer = fixture_lineup_infos.get("position")
+        gridPlayer = fixture_lineup_infos.get("grid")
+
+        queryInsert = f"""
+        insert into ftb.fixtures_lineups (id_fixture, id_team, id_player, "type", "position", grid)
+        values (
+        (select id from ftb.fixtures where id_fixture = {idFixture}),
+        (select id from ftb.teams where id_team = {idTeam}),
+        (select id from ftb.players where id_player = {idPlayer}),
+        '{typeLineUp}',
+        '{positionPlayer}',
+        '{gridPlayer}'
+        ) 
         """
 
         return queryInsert
