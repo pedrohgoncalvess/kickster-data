@@ -12,5 +12,5 @@ if __name__ == "__main__":
     listFixtures = dataFromDb.get_all_fixtures_id()
 
     for fixtureId in listFixtures:
-        jsonEvents = req.fixtures_events(fixtureId)
+        jsonEvents = req.fixture_events(fixtureId)
         manager.fixture_event_management(jsonEvents, fixtureId)

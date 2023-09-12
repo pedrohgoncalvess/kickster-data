@@ -1,10 +1,11 @@
 from sports_at_request.address_request import Request
 from handlers.managers import Managers
-from env_var import getVar
+from database.data_from_db import DataFromDatabase
 
 req = Request()
 manager = Managers()
-idLeagues = getVar("LEAGUES_TO_ANALYZE")
+dataFromDb = DataFromDatabase()
+idLeagues = dataFromDb.get_all_league_id()
 
 
 if __name__ == '__main__':
