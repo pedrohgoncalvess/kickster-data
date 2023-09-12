@@ -32,11 +32,11 @@ class DataFromDatabase:
 
         return idsList
 
-    def get_all_champs_id(self) -> list[int]:
+    def get_all_league_id(self) -> list[int]:
 
-        queryChamps = self.queries.get_all_champ_id
+        queryLeagues = self.queries.get_all_league_id
 
-        resultQuery = self.execute_consult(queryChamps)
+        resultQuery = self.execute_consult(queryLeagues)
         idsList: list[int] = []
 
         for queryTuple in resultQuery:
