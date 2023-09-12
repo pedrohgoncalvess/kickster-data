@@ -172,7 +172,8 @@ class Validators:
 
         return listPlayersToReturn
 
-    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any], fixture_lineups_infos: list[dict[str:any]],fixture_id: int):
+    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any],
+                                fixture_lineups_infos: list[dict[str:any]], fixture_id: int):
 
         idTeam = team_fixture_stats_infos.get("team").get("id")
 
@@ -181,9 +182,11 @@ class Validators:
             idTeamLineUp = lineup.get("team").get("id")
             if idTeam == idTeamLineUp:
                 formationLineup = lineup.get("formation")
+                coach = lineup.get("coach").get("id")
 
         statisticsRoot = team_fixture_stats_infos.get("statistics")
-        dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id, "formation":formationLineup}
+        dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id,
+                                       "formation": formationLineup, "coach":coach}
 
         for statistic in statisticsRoot:
             typeStat = statistic.get("type").lower().replace(" ", "_")
@@ -450,3 +453,23 @@ class Validators:
             listToReturn.append(dictToReturn)
 
         return listToReturn
+
+    def fixture_lineup_validator(self, fixture_lineup_infos: dict[str:any], id_fixture: str | int) -> dict[str:any]:
+        idTeam = fixture_lineup_infos.get("team").get("id")
+        typesLineUps = ["startXI", "substitutes"]
+        dictToReturn = {"id_team": idTeam, "id_fixture": id_fixture}
+
+        for typeLineUp in typesLineUps:
+            listPlayers = []
+            typeLineUpRoot = fixture_lineup_infos.get(typeLineUp)
+            for player in typeLineUpRoot:
+                playerRoot = player.get("player")
+                idPlayer = playerRoot.get("id")
+                posPlayer = playerRoot.get("pos")
+                gridPlayer = playerRoot.get("grid")
+                dictPlayer = {
+                   "id_fixture":id_fixture, "id_team": idTeam, "id_player": idPlayer,
+                    "position": posPlayer, "grid": gridPlayer
+                }
+                listPlayers.append(dictPlayer)
+            dictToReturn.update({typeLineUp: listPlayers})
