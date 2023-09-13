@@ -2,11 +2,11 @@ from datetime import datetime as dt
 import datetime
 
 
-class Validators:
+class Parsers:
     def __init__(self):
         self.actualYear = int(dt.now().year)
 
-    def stadium_validator(self, stadium_infos: dict[str:str]) -> dict[str:str]:
+    def stadium_parser(self, stadium_infos: dict[str:str]) -> dict[str:str]:
         stadiumRoot = stadium_infos.get("venue")
         idExStadium = stadiumRoot.get('id')
         nameStadium = stadiumRoot.get("name")
@@ -35,7 +35,7 @@ class Validators:
 
         return dictToReturn
 
-    def team_validator(self, team_info: dict[str:any]) -> dict[str:str]:
+    def team_parser(self, team_info: dict[str:any]) -> dict[str:str]:
 
         idExTeam = team_info.get('team').get('id')
         idStadium = team_info.get('venue').get('id')
@@ -59,7 +59,7 @@ class Validators:
 
         return dictToReturn
 
-    def league_validator(self, league_infos: dict[str:dict[str:str]]) -> dict[str:str]:
+    def league_parser(self, league_infos: dict[str:dict[str:str]]) -> dict[str:str]:
 
         idLeague = league_infos.get('league').get('id')
         nameLeague = league_infos.get('league').get('name')
@@ -83,7 +83,7 @@ class Validators:
 
         return dictToReturn
 
-    def player_validator(self, player_infos: dict[str:any]) -> dict[str:any]:
+    def player_parser(self, player_infos: dict[str:any]) -> dict[str:any]:
 
         playerRoot = player_infos.get('player')
         playerID = playerRoot.get('id')
@@ -105,7 +105,7 @@ class Validators:
 
         return dictToReturn
 
-    def fixture_validator(self, fixture_infos: dict[str:any]) -> dict[str:str]:
+    def fixture_parser(self, fixture_infos: dict[str:any]) -> dict[str:str]:
 
         fixtureInfos: dict[str:any] = fixture_infos.get("fixture")
         leagueInfo = fixture_infos.get("league")
@@ -151,7 +151,7 @@ class Validators:
 
         return dictToReturn
 
-    def team_squad_validator(self, team_squad_infos: dict[str:any]) -> list[dict[str:str]]:
+    def team_squad_parser(self, team_squad_infos: dict[str:any]) -> list[dict[str:str]]:
 
         idTeam = team_squad_infos.get("team").get("id")
 
@@ -172,7 +172,7 @@ class Validators:
 
         return listPlayersToReturn
 
-    def fixture_stats_validator(self, team_fixture_stats_infos: dict[str:any],
+    def fixture_stats_parser(self, team_fixture_stats_infos: dict[str:any],
                                 fixture_lineups_infos: list[dict[str:any]], fixture_id: int):
 
         idTeam = team_fixture_stats_infos.get("team").get("id")
@@ -202,7 +202,7 @@ class Validators:
 
         return dictToReturn
 
-    def fixture_events_validator(self, fixture_event_infos: dict[str:any], fixture_id: int):
+    def fixture_events_parser(self, fixture_event_infos: dict[str:any], fixture_id: int):
         teamEvent = fixture_event_infos.get("team").get("id")
         timeElapsed = fixture_event_infos.get("time").get("elapsed")
         principalPlayer = fixture_event_infos.get("player").get("id")
@@ -227,7 +227,7 @@ class Validators:
 
         return dictToReturn
 
-    def player_stats_validator(self, player_stats_infos: dict[str:any]) -> dict[str:any]:
+    def player_stats_parser(self, player_stats_infos: dict[str:any]) -> dict[str:any]:
         listOfStats: list[dict[str:any]] = []
         for teamInResponse in player_stats_infos:
             idPlayer = teamInResponse.get("player").get("id")
@@ -329,7 +329,7 @@ class Validators:
 
             return listOfStats
 
-    def team_league_fixtures_stats_validator(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
+    def team_league_fixtures_stats_parser(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
         idLeague = team_league_stats_infos.get("league").get("id")
         idTeam = team_league_stats_infos.get("team").get("id")
         fixturesRoot = team_league_stats_infos.get("fixtures")
@@ -379,7 +379,7 @@ class Validators:
 
         return dictToReturn
 
-    def team_league_goals_stats_validator(self, team_league_goals_stats_infos: dict[str:any]) -> list[dict[str:str]]:
+    def team_league_goals_stats_parser(self, team_league_goals_stats_infos: dict[str:any]) -> list[dict[str:str]]:
 
         goalsRoot = team_league_goals_stats_infos.get("goals")
         listToReturn: list[dict[str:any]] = []
@@ -419,7 +419,7 @@ class Validators:
 
         return listToReturn
 
-    def team_league_cards_stats_validator(self, team_league_cards_stats_infos: dict[str:any]) -> dict[str:str]:
+    def team_league_cards_stats_parser(self, team_league_cards_stats_infos: dict[str:any]) -> dict[str:str]:
         cardTypes = ["red", "yellow"]
 
         idLeague = team_league_cards_stats_infos.get("league").get("id")
@@ -454,7 +454,7 @@ class Validators:
 
         return listToReturn
 
-    def fixture_lineup_validator(self, fixture_lineup_infos: dict[str:any], id_fixture: str | int) -> dict[str:any]:
+    def fixture_lineup_parser(self, fixture_lineup_infos: dict[str:any], id_fixture: str | int) -> dict[str:any]:
         idTeam = fixture_lineup_infos.get("team").get("id")
         typesLineUps = ["startXI", "substitutes"]
         dictToReturn = {"id_team": idTeam, "id_fixture": id_fixture}

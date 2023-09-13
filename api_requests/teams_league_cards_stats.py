@@ -1,9 +1,7 @@
 from handlers.managers import Managers
-from handlers.validators import Validators
 from sports_at_request.address_request import Request
 from database.data_from_db import DataFromDatabase
 
-validator = Validators()
 req = Request()
 manager = Managers()
 dataFromDb = DataFromDatabase()
