@@ -1,7 +1,7 @@
 from typing import NoReturn
 from env_var import get_leagues_to_analyze
 from handlers.managers import Managers
-from sports_at_request.address_request import Request
+from api_requests.address_request import Request
 
 req = Request()
 manager = Managers()

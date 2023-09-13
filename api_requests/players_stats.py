@@ -1,5 +1,5 @@
 from handlers.managers import Managers
-from sports_at_request.address_request import Request
+from api_requests.address_request import Request
 from database.data_from_db import DataFromDatabase
 
 req = Request()
