@@ -33,8 +33,7 @@ class DatabaseConnection:
             cursor.execute(statement)
             connection.commit()
 
-        except Exception as error:
-            print(error, statement)
+        except:
             connection.rollback()
 
         finally:
