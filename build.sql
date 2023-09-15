@@ -89,7 +89,7 @@ create table if not exists "ftb".stadiums
     id serial,
     id_stadium integer not null unique,
     "name" varchar(150) not null unique,
-    state varchar(20) not null,
+    state varchar(40) not null,
     city varchar(50) not null,
     address varchar(250) not null,
     capacity integer not null,
