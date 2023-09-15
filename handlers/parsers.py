@@ -16,8 +16,8 @@ class Parsers:
         imageStadium = stadiumRoot.get('image')
 
         try:
-            stateStadium = stadiumRoot.get('city').split(',')[1]
-            cityStatium = stadiumRoot.get('city').split(',')[0]
+            stateStadium = stadiumRoot.get('city').split(',')[1].strip().replace(" ", "_").lower()
+            cityStatium = stadiumRoot.get('city').split(',')[0].strip().replace(" ", "_").lower()
         except:
             stateStadium = None
             cityStatium = None
