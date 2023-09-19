@@ -6,7 +6,7 @@ class Queries:
         self.get_all_team_id = "select id_team from ftb.teams"
         self.get_all_league_id = "select id_league from ftb.leagues"
         self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1"
-        self.get_all_fixtures_id = "select id_fixture from ftb.fixtures"
+        self.get_all_fixtures_id = "select id_fixture from ftb.fixtures where status = 'match_finished'"
         self.get_all_id_players_serie_a = "select p.id_player from ftb.teams_squad ts inner join ftb.players p on p.id = ts.id where ts.id_team in (select distinct(team.id) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1)"
         self.get_leagues_teams_relation_id = """with teams_league as (select lg.id_league, ts.id_team, concat(lg.id_league || '-' || ts.id_team) id_compost
                                     from ftb.fixtures fx
@@ -14,6 +14,8 @@ class Queries:
                                        inner join ftb.leagues lg on lg.id = fx.id_league
                                                         )
                                     select distinct(teams_league.id_compost), teams_league.id_league, teams_league.id_team from teams_league"""
+        self.get_all_id_players = "select id_player from ftb.players"
+        self.get_all_id_players_squad = "select pl.id_player from ftb.teams_squad ts inner join ftb.players pl on pl.id = ts.id_player"
 
     def update_fixture_data_status(self, id_fixture: int) -> NoReturn:
         return f"update ftb.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
