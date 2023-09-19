@@ -103,6 +103,11 @@ class Parsers:
             "weight": playerWeight, "photo": playerPhoto, "injured": playerInjured
         }
 
+        for keyValue in list(dictToReturn.keys()):
+            value = dictToReturn.get(keyValue)
+            if value is None or value == "":
+                dictToReturn.update({keyValue:0})
+
         return dictToReturn
 
     def fixture_parser(self, fixture_infos: dict[str:any]) -> dict[str:str]:
@@ -173,7 +178,7 @@ class Parsers:
         return listPlayersToReturn
 
     def fixture_stats_parser(self, team_fixture_stats_infos: dict[str:any],
-                                fixture_lineups_infos: list[dict[str:any]], fixture_id: int):
+                             fixture_lineups_infos: list[dict[str:any]], fixture_id: int):
 
         idTeam = team_fixture_stats_infos.get("team").get("id")
 
@@ -181,12 +186,12 @@ class Parsers:
         for lineup in fixture_lineups_infos:
             idTeamLineUp = lineup.get("team").get("id")
             if idTeam == idTeamLineUp:
-                formationLineup = lineup.get("formation")
-                coach = lineup.get("coach").get("id")
+                formationLineup = lineup.get("formation") if lineup.get("formation") is not None else "0-0-0"
+                coach = lineup.get("coach").get("id") if lineup.get("coach") is not None else 0
 
         statisticsRoot = team_fixture_stats_infos.get("statistics")
         dictToReturn: dict[str:any] = {"id_team": idTeam, "id_fixture": fixture_id,
-                                       "formation": formationLineup, "coach":coach}
+                                       "formation": formationLineup, "coach": coach}
 
         for statistic in statisticsRoot:
             typeStat = statistic.get("type").lower().replace(" ", "_")
@@ -457,19 +462,20 @@ class Parsers:
     def fixture_lineup_parser(self, fixture_lineup_infos: dict[str:any], id_fixture: str | int) -> dict[str:any]:
         idTeam = fixture_lineup_infos.get("team").get("id")
         typesLineUps = ["startXI", "substitutes"]
-        dictToReturn = {"id_team": idTeam, "id_fixture": id_fixture}
+        listPlayers = []
 
         for typeLineUp in typesLineUps:
-            listPlayers = []
             typeLineUpRoot = fixture_lineup_infos.get(typeLineUp)
             for player in typeLineUpRoot:
+                typeLine = "start" if typeLineUp == 'startXI' else "subst"
                 playerRoot = player.get("player")
                 idPlayer = playerRoot.get("id")
                 posPlayer = playerRoot.get("pos")
-                gridPlayer = playerRoot.get("grid")
+                gridPlayer = playerRoot.get("grid") if playerRoot.get("grid") is not None else "0-0"
                 dictPlayer = {
-                   "id_fixture":id_fixture, "id_team": idTeam, "id_player": idPlayer,
-                    "position": posPlayer, "grid": gridPlayer
+                    "id_fixture": id_fixture, "id_team": idTeam, "id_player": idPlayer,
+                    "position": posPlayer, "grid": gridPlayer, "type":typeLine
                 }
                 listPlayers.append(dictPlayer)
-            dictToReturn.update({typeLineUp: listPlayers})
+
+        return listPlayers
