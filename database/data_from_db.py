@@ -32,6 +32,31 @@ class DataFromDatabase:
 
         return idsList
 
+    def get_all_players_id(self) -> list:
+        queryPlayers = self.queries.get_all_id_players
+
+        resultQuery = self.execute_consult(queryPlayers)
+        idsList = []
+
+        if resultQuery is not None:
+            for queryTuple in resultQuery:
+                idsList.append(queryTuple[0])
+
+        return idsList
+
+    def get_all_players_squad_id(self):
+        queryPlayerSquad = self.queries.get_all_id_players_squad
+
+        resultQuery = self.execute_consult(queryPlayerSquad)
+
+        idsList = []
+
+        if resultQuery is not None:
+            for queryTuple in resultQuery:
+                idsList.append(queryTuple[0])
+
+        return idsList
+
     def get_all_league_id(self) -> list[int]:
 
         queryLeagues = self.queries.get_all_league_id
