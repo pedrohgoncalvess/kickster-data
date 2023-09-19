@@ -14,6 +14,7 @@ class DatabaseConnection:
         self.user = getVar('DB_USER')
         self.password = getVar('DB_PASSWORD')
         self.queries = Queries()
+        self.sslmode = "require"
 
     def connection(self):
         return psycopg2.connect(
@@ -21,7 +22,8 @@ class DatabaseConnection:
             host=self.host,
             port=self.port,
             user=self.user,
-            password=self.password
+            password=self.password,
+            sslmode=self.sslmode
         )
 
     def __perform_insert_query__(self, statement: str) -> NoReturn:
@@ -33,11 +35,23 @@ class DatabaseConnection:
             cursor.execute(statement)
             connection.commit()
 
-        except:
+        except psycopg2.OperationalError:
+            connection = self.connection()
+            cursor = connection.cursor()
+            cursor.execute(statement)
+            connection.commit()
+
+        except psycopg2.InterfaceError:
+            connection = self.connection()
+            cursor = connection.cursor()
+            cursor.execute(statement)
+            connection.commit()
+
+        except Exception as error:
+            print(statement, error)
             connection.rollback()
 
         finally:
-            time.sleep(0.5)
             cursor.close()
             connection.close()
 
