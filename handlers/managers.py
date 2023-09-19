@@ -2,12 +2,14 @@ from database.connection import DatabaseConnection
 from typing import NoReturn
 from handlers.parsers import Parsers
 from database.queries import Queries
+from database.data_from_db import DataFromDatabase
 
 
 class Managers:
     def __init__(self):
         self.parser = Parsers()
         self.queries = Queries()
+        self.data_from_db = DataFromDatabase()
         self.__operations__ = DatabaseConnection()
         self.execute_insert_query = self.__operations__.__perform_insert_query__
         self.execute_update_query = self.__operations__.__perform__update_query__
@@ -34,11 +36,14 @@ class Managers:
             self.execute_insert_query(queryInsert)
 
     def player_management(self, player_values: list[dict[str:str]]):
+        playersInDb = self.data_from_db.get_all_players_id()
         for playerValue in player_values:
             playerInfos = self.parser.player_parser(playerValue)
-            queryInsert = self.queries.insert_player(playerInfos)
+            idPlayer = playerInfos.get("id")
 
-            self.execute_insert_query(queryInsert)
+            if idPlayer not in playersInDb:
+                queryInsert = self.queries.insert_player(playerInfos)
+                self.execute_insert_query(queryInsert)
 
     def fixture_management(self, fixtures_values: dict) -> NoReturn:
         for fixtureValues in fixtures_values:
@@ -49,18 +54,26 @@ class Managers:
 
     def team_squad_management(self, players_squad_values: list[dict[str:any]]) -> NoReturn:
         playersSquadInfo = self.parser.team_squad_parser(players_squad_values[0])
+        idPlayersSquadInDb = self.data_from_db.get_all_players_squad_id()
 
         for playerInfo in playersSquadInfo:
-            queryInsert = self.queries.insert_team_player_squad(playerInfo)
+            idPlayer = playerInfo.get("id_player")
+            if idPlayer not in idPlayersSquadInDb:
+                queryInsert = self.queries.insert_team_player_squad(playerInfo)
 
-            self.execute_insert_query(queryInsert)
+                self.execute_insert_query(queryInsert)
 
     def fixture_stats_management(self, fixture_stats_values: list[dict[str:any]],
                                  fixture_lineups_values: list[dict[str:any]], fixture_id: int) -> NoReturn:
+        fixturesInDb = self.data_from_db.get_all_fixtures_id()
+
         for team_stats in fixture_stats_values:
             fixtureStatsInfo = self.parser.fixture_stats_parser(team_stats, fixture_lineups_values, fixture_id)
-            queryInsert = self.queries.insert_fixture_stats(fixtureStatsInfo)
-            self.execute_insert_query(queryInsert)
+            idFixture = fixtureStatsInfo.get("id_fixture")
+
+            if idFixture not in fixturesInDb:
+                queryInsert = self.queries.insert_fixture_stats(fixtureStatsInfo)
+                self.execute_insert_query(queryInsert)
 
     def fixture_event_management(self, fixture_events_values: list[dict[str:any]], fixture_id: int):
         for event in fixture_events_values:
