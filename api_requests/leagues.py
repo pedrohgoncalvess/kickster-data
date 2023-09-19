@@ -1,4 +1,3 @@
-from typing import NoReturn
 from env_var import get_leagues_to_analyze
 from handlers.managers import Managers
 from api_requests.address_request import Request
