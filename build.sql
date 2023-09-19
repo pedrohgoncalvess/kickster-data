@@ -215,7 +215,7 @@ create table if not exists "ftb".fixtures_stats
     total_passes integer not null,
     accurate_passes integer not null,
     expected_goals numeric not null,
-    id_compost varchar(15) generated always as (generate_compost_id_fixture_team(id_fixture,id_team)) stored,
+    id_compost varchar(15) unique generated always as (generate_compost_id_fixture_team(id_fixture,id_team)) stored,
 
     constraint fixtures_statistics_pk primary key (id),
     constraint fixtures_statistics_fixture_fk foreign key (id_fixture) references ftb.fixtures (id),
