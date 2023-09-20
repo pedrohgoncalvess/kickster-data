@@ -1,105 +1,38 @@
-from database.queries import Queries
+from database.generator import Queries
 from database.connection import DatabaseConnection
+from sqlalchemy import select
+from models import leagues_model, players_model, teams_model
 
 
 class DataFromDatabase:
     def __init__(self):
         self.queries = Queries()
-        self.__connection__ = DatabaseConnection()
-        self.execute_consult = self.__connection__.__perform_consult_query__
+        self.execute_query = DatabaseConnection().query_objects
 
-    def get_all_players_id_serie_a(self) -> list[int]:
+    def get_all_leagues_id(self):
+        statementIdLeagues = select(leagues_model.Leagues.id)
+        results = self.execute_query(statementIdLeagues)
+        idLeagues = []
+        for idLeague in results:
+            idLeagues.append(idLeague[0])
 
-        queryPlayer = self.queries.get_all_id_players_serie_a
+        return idLeagues
 
-        resultQuery = self.execute_consult(queryPlayer)
-        idsList: list[int] = []
+    def get_all_teams_id(self):
+        statementIdTeams = select(teams_model.Teams.id)
+        results = self.execute_query(statementIdTeams)
+        idTeams = []
+        for idTeam in results:
+            idTeams.append(idTeam[0])
 
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
+        return idTeams
 
-        return idsList
+    def get_all_players_id(self):
+        statementIdPlayers = select(players_model.Players.id)
+        results = self.execute_query(statementIdPlayers)
+        idPlayers = []
+        for idPlayer in results:
+            idPlayers.append(idPlayer[0])
 
-    def get_all_teams_id(self) -> list[int]:
+        return idPlayers
 
-        queryTeams = self.queries.get_all_team_id
-
-        resultQuery = self.execute_consult(queryTeams)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_players_id(self) -> list:
-        queryPlayers = self.queries.get_all_id_players
-
-        resultQuery = self.execute_consult(queryPlayers)
-        idsList = []
-
-        if resultQuery is not None:
-            for queryTuple in resultQuery:
-                idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_players_squad_id(self):
-        queryPlayerSquad = self.queries.get_all_id_players_squad
-
-        resultQuery = self.execute_consult(queryPlayerSquad)
-
-        idsList = []
-
-        if resultQuery is not None:
-            for queryTuple in resultQuery:
-                idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_league_id(self) -> list[int]:
-
-        queryLeagues = self.queries.get_all_league_id
-
-        resultQuery = self.execute_consult(queryLeagues)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_teams_id_serie_a(self) -> list[int]:
-        queryTeamsSerieA = self.queries.get_all_teams_id_serie_a
-        resultQuery = self.execute_consult(queryTeamsSerieA)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_fixtures_id(self) -> list[int]:
-
-        queryFixturesId = self.queries.get_all_fixtures_id
-
-        resultQuery = self.execute_consult(queryFixturesId)
-        idsList: list[int] = []
-
-        for queryTuple in resultQuery:
-            idsList.append(queryTuple[0])
-
-        return idsList
-
-    def get_all_league_teams_id(self) -> dict[int:int]:
-        queryTeamsLeague = self.queries.get_leagues_teams_relation_id
-        resultQuery = self.execute_consult(queryTeamsLeague)
-        idsRelationDict: dict[dict[str:int]] = {}
-
-        for resultTuple in resultQuery:
-            keyValue = resultTuple[0]
-            idLeague = resultTuple[1]
-            idTeam = resultTuple[2]
-            idsRelationDict.update({keyValue: {"id_league": idLeague, "id_team": idTeam}})
-
-        return idsRelationDict
