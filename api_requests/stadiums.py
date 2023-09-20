@@ -10,5 +10,5 @@ def main():
     idLeagues = dataFromDb.get_all_leagues_id()
 
     for idLeague in idLeagues:
-        teamsResponseRaw = req.team_stadium(id_league=idLeague)
-        manager.team_management(team_info=teamsResponseRaw)
+        stadiumResponseRaw = req.team_stadium(id_league=idLeague)
+        manager.stadium_management(stadium_infos=stadiumResponseRaw)
