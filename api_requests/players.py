@@ -4,6 +4,7 @@ from database.data_from_db import DataFromDatabase
 
 req = Request()
 
+
 def make_team_player_request(id_team: str | int, page: str | int = 1) -> tuple[list[dict[str, dict]], str | int, int]:
     response = req.team_player(id_team=id_team, page=page)
 

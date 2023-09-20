@@ -1,26 +1,9 @@
-from typing import NoReturn
+from models import stadiums_model, teams_model, leagues_model, players_model
 
 
 class Queries:
-    def __init__(self):
-        self.get_all_team_id = "select id_team from ftb.teams"
-        self.get_all_league_id = "select id_league from ftb.leagues"
-        self.get_all_teams_id_serie_a = "select distinct(team.id_team) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1"
-        self.get_all_fixtures_id = "select id_fixture from ftb.fixtures where status = 'match_finished'"
-        self.get_all_id_players_serie_a = "select p.id_player from ftb.teams_squad ts inner join ftb.players p on p.id = ts.id where ts.id_team in (select distinct(team.id) as id_team from ftb.fixtures fx inner join ftb.teams team on team.id = fx.id_team_home where fx.id_league = 1)"
-        self.get_leagues_teams_relation_id = """with teams_league as (select lg.id_league, ts.id_team, concat(lg.id_league || '-' || ts.id_team) id_compost
-                                    from ftb.fixtures fx
-                                       inner join ftb.teams ts on ts.id = fx.id_team_home
-                                       inner join ftb.leagues lg on lg.id = fx.id_league
-                                                        )
-                                    select distinct(teams_league.id_compost), teams_league.id_league, teams_league.id_team from teams_league"""
-        self.get_all_id_players = "select id_player from ftb.players"
-        self.get_all_id_players_squad = "select pl.id_player from ftb.teams_squad ts inner join ftb.players pl on pl.id = ts.id_player"
 
-    def update_fixture_data_status(self, id_fixture: int) -> NoReturn:
-        return f"update ftb.fixtures set data_status = 'collected' where id_fixture = {id_fixture}"
-
-    def insert_stadium(self, stadium_values: dict[str:str]) -> str:
+    def insert_stadium(self, stadium_values: dict[str:str]) -> stadiums_model.Stadiums:
 
         idExStadium = stadium_values.get('id')
         nameStadium = stadium_values.get('name')
@@ -31,16 +14,14 @@ class Queries:
         surfaceStadium = stadium_values.get('surface')
         imageStadium = stadium_values.get('image')
 
-        queryInsert = f"""
+        newStadium = stadiums_model.Stadiums(
+            id=idExStadium, name=nameStadium, state=stateStadium, city=cityStatium, address=addressStatium,
+            capacity=capacityStatium, surface=surfaceStadium, image=imageStadium
+                                              )
 
-        insert into "ftb".stadiums (id_stadium, "name", state, city, address, capacity, surface, image)
-        values ({idExStadium}, '{nameStadium}', '{stateStadium}', '{cityStatium}', '{addressStatium}', {capacityStatium}, '{surfaceStadium}', '{imageStadium}')
+        return newStadium
 
-        """
-
-        return queryInsert
-
-    def insert_team(self, team_values: dict[str:str]) -> str:
+    def insert_team(self, team_values: dict[str:str]) -> teams_model.Teams:
 
         idExTeam = team_values.get('id')
         idStadium = team_values.get('id_stadium')
@@ -51,20 +32,14 @@ class Queries:
         countryTeam = team_values.get('country')
         foundedTeam = team_values.get('founded')
 
-        if idStadium is not None:
-            queryInsert = f"""
-            insert into ftb.teams (id_team, id_stadium, code, "name", country, logo, founded, "national") values
-            ({idExTeam}, (select id from ftb.stadiums where id_stadium = {idStadium}), '{codeTeam}', '{nameTeam}', '{countryTeam}', '{logoTeam}', {foundedTeam}, {nationalTeam})       
-            """
-        else:
-            queryInsert = f"""
-                        insert into ftb.teams (id_team, code, "name", country, logo, founded, "national") values
-                        ({idExTeam}, '{codeTeam}', '{nameTeam}', '{countryTeam}', '{logoTeam}', {foundedTeam}, {nationalTeam})       
-                        """
+        newTeam = teams_model.Teams(
+            id=idExTeam, id_stadium=idStadium, name=nameTeam, code=codeTeam, country=countryTeam,
+            logo=logoTeam, national=nationalTeam, founded=foundedTeam
+        )
 
-        return queryInsert
+        return newTeam
 
-    def insert_league(self, leagues_values: dict[str:any]) -> str:
+    def insert_league(self, leagues_values: dict[str:any]) -> leagues_model.Leagues:
 
         idLeague = leagues_values.get("id")
         nameLeague = leagues_values.get('name')
@@ -75,14 +50,14 @@ class Queries:
         typeLeague = leagues_values.get('type')
         seasonLeague = leagues_values.get('season')
 
-        queryInsert = f"""
-        insert into ftb.leagues (id_league,"name",country,"type",season,start_league,end_league,logo)
-        values ({idLeague},'{nameLeague}','{countryLeague}','{typeLeague}',{seasonLeague},'{startLeague}','{endLeague}','{logoLeague}')
-        """
+        newLeague = leagues_model.Leagues(
+            id=idLeague, name=nameLeague, start_league=startLeague, end_league=endLeague, type=typeLeague,
+            season=seasonLeague, country=countryLeague, logo=logoLeague
+        )
 
-        return queryInsert
+        return newLeague
 
-    def insert_player(self, player_values: dict[str:any]) -> str:
+    def insert_player(self, player_values: dict[str:any]) -> players_model.Players:
 
         idPlayer = player_values.get('id')
         namePlayer = player_values.get('name')
@@ -92,14 +67,14 @@ class Queries:
         nationalityPlayer = player_values.get('nationality')
         heightPlayer = player_values.get('height')
         weightPlayer = player_values.get('weight')
-        photoPlayer = player_values.get('photo')
+        imagePlayer = player_values.get('photo')
 
-        queryInsert = f"""
-        insert into ftb.players (id_player, "name", first_name, last_name, date_of_birth, nationality, height, weight,photo)
-        values ({idPlayer},'{namePlayer}','{firstNamePlayer}','{lastNamePlayer}','{birthPlayer}','{nationalityPlayer}',{heightPlayer},{weightPlayer},'{photoPlayer}')
-        """
+        newPlayer = players_model.Players(
+            id=idPlayer, name=namePlayer, first_name=firstNamePlayer, last_name=lastNamePlayer, date_of_birth=birthPlayer,
+            nationality=nationalityPlayer, height=heightPlayer, weight=weightPlayer, image=imagePlayer
+        )
 
-        return queryInsert
+        return newPlayer
 
     def insert_fixture(self, fixture_values: dict[str:any]) -> str:
         idFixture = fixture_values.get("id_fixture")

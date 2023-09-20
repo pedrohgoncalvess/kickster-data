@@ -6,7 +6,7 @@ def main():
     req = Request()
     manager = Managers()
     dataFromDb = DataFromDatabase()
-    idLeagues = dataFromDb.get_all_league_id()
+    idLeagues = dataFromDb.get_all_leagues_id()
 
 
     for idLeague in idLeagues:
