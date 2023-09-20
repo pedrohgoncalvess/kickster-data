@@ -1,8 +1,10 @@
-from database.connection import DatabaseConnection
+import models.stadiums_model
+from database.connection import db_connection
 from typing import NoReturn
 from handlers.parsers import Parsers
-from database.queries import Queries
+from database.generator import Queries
 from database.data_from_db import DataFromDatabase
+from sqlalchemy.orm import sessionmaker
 
 
 class Managers:
@@ -10,40 +12,46 @@ class Managers:
         self.parser = Parsers()
         self.queries = Queries()
         self.data_from_db = DataFromDatabase()
-        self.__operations__ = DatabaseConnection()
-        self.execute_insert_query = self.__operations__.__perform_insert_query__
-        self.execute_update_query = self.__operations__.__perform__update_query__
+        self.__insert__ = db_connection.insert_object
+        self.execute_insert_query = "pass"
+        self.execute_update_query = "pass"
 
     def stadium_management(self, stadium_infos: dict[str:str]) -> NoReturn:
         for stadium in stadium_infos:
             stadiumInfosTreated: dict = self.parser.stadium_parser(stadium)
-            queryInsert = self.queries.insert_stadium(stadium_values=stadiumInfosTreated)
+            newStadium = self.queries.insert_stadium(stadium_values=stadiumInfosTreated)
+            self.__insert__(newStadium)
 
-            self.execute_insert_query(queryInsert)
 
     def team_management(self, team_info: dict[str:any]) -> NoReturn:
         for team in team_info:
             teamInfos = self.parser.team_parser(team)
-            queryInsert = self.queries.insert_team(team_values=teamInfos)
+            newTeam = self.queries.insert_team(team_values=teamInfos)
+            self.__insert__(newTeam)
 
-            self.execute_insert_query(queryInsert)
 
     def league_management(self, league_infos: dict[str, dict]):
         for league in league_infos:
             leagueInfos = self.parser.league_parser(league)
-            queryInsert = self.queries.insert_league(leagueInfos)
+            newLeague = self.queries.insert_league(leagueInfos)
+            self.__insert__(newLeague)
 
-            self.execute_insert_query(queryInsert)
+
 
     def player_management(self, player_values: list[dict[str:str]]):
         playersInDb = self.data_from_db.get_all_players_id()
         for playerValue in player_values:
-            playerInfos = self.parser.player_parser(playerValue)
-            idPlayer = playerInfos.get("id")
+            if len(playersInDb) != 0:
+                playerInfos = self.parser.player_parser(playerValue)
+                idPlayer = playerInfos.get("id")
 
-            if idPlayer not in playersInDb:
-                queryInsert = self.queries.insert_player(playerInfos)
-                self.execute_insert_query(queryInsert)
+                if idPlayer not in playersInDb:
+                    newPlayer = self.queries.insert_player(playerInfos)
+                    self.__insert__(newPlayer)
+            else:
+                playerInfos = self.parser.player_parser(playerValue)
+                newPlayer = self.queries.insert_player(playerInfos)
+                self.__insert__(newPlayer)
 
     def fixture_management(self, fixtures_values: dict) -> NoReturn:
         for fixtureValues in fixtures_values:
