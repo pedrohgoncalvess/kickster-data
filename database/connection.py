@@ -1,9 +1,9 @@
-import time
+from sqlalchemy.orm import sessionmaker
 
-import psycopg2
 from env_var import getVar
-from typing import NoReturn, Any
-from database.queries import Queries
+from database.generator import Queries
+from sqlalchemy import create_engine
+
 
 
 class DatabaseConnection:
@@ -14,75 +14,33 @@ class DatabaseConnection:
         self.user = getVar('DB_USER')
         self.password = getVar('DB_PASSWORD')
         self.queries = Queries()
-        self.sslmode = "require"
-
-    def connection(self):
-        return psycopg2.connect(
-            dbname=self.dbName,
-            host=self.host,
-            port=self.port,
-            user=self.user,
-            password=self.password,
-            sslmode=self.sslmode
+        self.__engine__ = create_engine(
+            f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbName}"
         )
 
-    def __perform_insert_query__(self, statement: str) -> NoReturn:
-
-        connection = self.connection()
-        cursor = connection.cursor()
-
+    def insert_object(self, new_object):
+        Session = sessionmaker(self.__engine__)
+        session = Session()
         try:
-            cursor.execute(statement)
-            connection.commit()
-
-        except psycopg2.OperationalError:
-            connection = self.connection()
-            cursor = connection.cursor()
-            cursor.execute(statement)
-            connection.commit()
-
-        except psycopg2.InterfaceError:
-            connection = self.connection()
-            cursor = connection.cursor()
-            cursor.execute(statement)
-            connection.commit()
-
+            session.add(new_object)
+            session.commit()
         except Exception as error:
-            print(statement, error)
-            connection.rollback()
-
+            print(error)
         finally:
-            cursor.close()
-            connection.close()
+            session.close()
 
-    def __perform__update_query__(self, statement: str):
-        connection = self.connection()
-        cursor = connection.cursor()
-
+    def query_objects(self, statement):
+        Session = sessionmaker(self.__engine__)
+        session = Session()
         try:
-            cursor.execute(statement)
-            connection.commit()
-
-        except:
-            connection.rollback()
+            results = session.execute(statement)
+            return results.fetchall()
+        except Exception as error:
+            print(error)
 
         finally:
-            time.sleep(0.5)
-            cursor.close()
-            connection.close()
+            session.close()
 
-    def __perform_consult_query__(self, statement: str) -> Any:
-        global resultQuery
-        connection = self.connection()
-        cursor = connection.cursor()
 
-        try:
-            cursor.execute(statement)
-            resultQuery = cursor.fetchall()
-        except:
-            connection.rollback()
-            resultQuery = None
-        finally:
-            connection.close()
-            cursor.close()
-            return resultQuery
+
+db_connection = DatabaseConnection()
