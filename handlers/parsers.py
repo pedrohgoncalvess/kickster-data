@@ -94,18 +94,18 @@ class Parsers:
         playerNationality = playerRoot.get('nationality')
         playerHeight = playerRoot.get('height').replace(' cm', '') if playerRoot.get('height') is not None else 0
         playerWeight = playerRoot.get('weight').replace(' kg', '') if playerRoot.get('weight') is not None else 0
-        playerPhoto = playerRoot.get('photo')
+        playerImage = playerRoot.get('image')
         playerInjured = playerRoot.get("injured")
 
         dictToReturn = {
             "id": playerID, "name": playerName, "first_name": playerFirstName, "last_name": playerLastName,
             "birth": playerBirth, "nationality": playerNationality, "height": playerHeight,
-            "weight": playerWeight, "photo": playerPhoto, "injured": playerInjured
+            "weight": playerWeight, "photo": playerImage, "injured": playerInjured
         }
 
         for keyValue in list(dictToReturn.keys()):
             value = dictToReturn.get(keyValue)
-            if value is None or value == "":
+            if value == "\n    ":
                 dictToReturn.update({keyValue:0})
 
         return dictToReturn
