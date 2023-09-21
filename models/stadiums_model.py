@@ -12,7 +12,8 @@ class Stadiums(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    teams: Mapped[List["Teams"]] = relationship(back_populates="stadiums")
+    stadium_team: Mapped[List["Teams"]] = relationship(back_populates="home_stadium")
+    stadium_fixture: Mapped[List["Fixtures"]] = relationship(back_populates="fixture_stadium")
 
     name: Mapped[Optional[str]] = mapped_column(String(150), nullable=False, unique=True)
     state: Mapped[str] = mapped_column(String(40), nullable=False)
