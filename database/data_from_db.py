@@ -1,7 +1,7 @@
-from database.generator import Queries
+from handlers.generators import Queries
 from database.connection import DatabaseConnection
 from sqlalchemy import select
-from models import leagues_model, players_model, teams_model
+from models import leagues_model, players_model, teams_model, stadiums_model, fixtures_model
 
 
 class DataFromDatabase:
@@ -35,4 +35,23 @@ class DataFromDatabase:
             idPlayers.append(idPlayer[0])
 
         return idPlayers
+
+    def get_all_stadiums_id(self):
+        statementIdStadiums = select(stadiums_model.Stadiums.id)
+        results = self.execute_query(statementIdStadiums)
+        idStadiums = []
+        for idStadium in results:
+            idStadiums.append(idStadium[0])
+
+        return idStadiums
+
+    def get_all_fixtures_id(self):
+        statementIdFixtures = select(fixtures_model.Fixtures.id)
+        results = self.execute_query(statementIdFixtures)
+        idFixtures = []
+        for idFixture in results:
+            idFixtures.append(idFixture[0])
+
+        return idFixtures
+
 
