@@ -1,9 +1,9 @@
-from models import stadiums_model, teams_model, leagues_model, players_model
+from models import stadiums_model, teams_model, leagues_model, players_model, fixtures_model
 
 
 class Queries:
 
-    def insert_stadium(self, stadium_values: dict[str:str]) -> stadiums_model.Stadiums:
+    def generator_stadium(self, stadium_values: dict[str:str]) -> stadiums_model.Stadiums:
 
         idExStadium = stadium_values.get('id')
         nameStadium = stadium_values.get('name')
@@ -21,7 +21,7 @@ class Queries:
 
         return newStadium
 
-    def insert_team(self, team_values: dict[str:str]) -> teams_model.Teams:
+    def generator_team(self, team_values: dict[str:str]) -> teams_model.Teams:
 
         idExTeam = team_values.get('id')
         idStadium = team_values.get('id_stadium')
@@ -39,7 +39,7 @@ class Queries:
 
         return newTeam
 
-    def insert_league(self, leagues_values: dict[str:any]) -> leagues_model.Leagues:
+    def generator_league(self, leagues_values: dict[str:any]) -> leagues_model.Leagues:
 
         idLeague = leagues_values.get("id")
         nameLeague = leagues_values.get('name')
@@ -57,7 +57,7 @@ class Queries:
 
         return newLeague
 
-    def insert_player(self, player_values: dict[str:any]) -> players_model.Players:
+    def generator_player(self, player_values: dict[str:any]) -> players_model.Players:
 
         idPlayer = player_values.get('id')
         namePlayer = player_values.get('name')
@@ -76,7 +76,7 @@ class Queries:
 
         return newPlayer
 
-    def insert_fixture(self, fixture_values: dict[str:any]) -> str:
+    def generator_fixture(self, fixture_values: dict[str:any]) -> fixtures_model.Fixtures:
         idFixture = fixture_values.get("id_fixture")
         dateFixture = fixture_values.get("date")
         refereeFixture = fixture_values.get("referee")
@@ -89,41 +89,15 @@ class Queries:
         resultFixture = fixture_values.get("result")
         statusFixture = fixture_values.get("status")
 
-        if idStadiumFixture != None:
-            queryInsert = f"""
-            insert into ftb.fixtures (id_fixture,id_stadium,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
-            values 
-            ({idFixture},
-            (select id from ftb.stadiums where id_stadium = {idStadiumFixture}),
-            (select id from ftb.leagues where id_league = {idLeague} and season = {seasonFixture}),
-            (select id from ftb.teams where id_team = {idHomeTeamFixture}),
-            (select id from ftb.teams where id_team = {idAwayTeamFixture}),
-            '{dateFixture}',
-            '{resultFixture}',
-            '{roundFixture}',
-            '{refereeFixture}',
-            '{statusFixture}'
-            )
-            """
-        else:
-            queryInsert = f"""
-            insert into ftb.fixtures (id_fixture,id_league,id_team_home,id_team_away,start_at,result,round,referee,status) 
-            values 
-            ({idFixture},
-            (select id from ftb.leagues where id_league = {idLeague} and season = {seasonFixture}),
-            (select id from ftb.teams where id_team = {idHomeTeamFixture}),
-            (select id from ftb.teams where id_team = {idAwayTeamFixture}),
-            '{dateFixture}',
-            '{resultFixture}',
-            '{roundFixture}',
-            '{refereeFixture}',
-            '{statusFixture}'
-            )
-            """
+        newFixture = fixtures_model.Fixtures(
+            id=idFixture, id_stadium=idStadiumFixture, id_team_home=idHomeTeamFixture, id_team_away=idAwayTeamFixture,
+            id_league=idLeague, start_at=dateFixture, result=resultFixture, referee=refereeFixture, round=roundFixture,
+            status=statusFixture
+        )
 
-        return queryInsert
+        return newFixture
 
-    def insert_team_player_squad(self, player_squad_infos: dict[str:any]):
+    def generator_team_player_squad(self, player_squad_infos: dict[str:any]):
         idPlayer = player_squad_infos.get("id_player")
         idTeam = player_squad_infos.get("id_team")
         positionPlayer = player_squad_infos.get("position")
@@ -142,7 +116,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_fixture_stats(self, team_fixture_stats_infos: dict[str:any]):
+    def generator_fixture_stats(self, team_fixture_stats_infos: dict[str:any]):
 
         idFixture = team_fixture_stats_infos.get("id_fixture")
         idTeam = team_fixture_stats_infos.get("id_team")
@@ -193,7 +167,7 @@ class Queries:
         return queryInsert
 
 
-    def insert_fixture_event(self, fixture_events_infos: dict[str:any]) -> str:
+    def generator_fixture_event(self, fixture_events_infos: dict[str:any]) -> str:
         idTeam = fixture_events_infos.get("id_team")
         idFixture = fixture_events_infos.get("id_fixture")
         timeElapsed = fixture_events_infos.get("time")
@@ -246,7 +220,7 @@ class Queries:
         return queryInsert
 
 
-    def insert_player_stat(self, player_stat_infos: dict[str:any]) -> str:
+    def generator_player_stat(self, player_stat_infos: dict[str:any]) -> str:
         idPlayer = player_stat_infos.get("id_player")
         idTeam = player_stat_infos.get("id_team")
         seasonLeague = player_stat_infos.get("season")
@@ -307,7 +281,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> str:
+    def generator_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> str:
         idTeam = team_league_fixtures_stats_infos.get("id_team")
         idLeague = team_league_fixtures_stats_infos.get("id_league")
         fixturesHome = team_league_fixtures_stats_infos.get("fixtures_home")
@@ -346,7 +320,7 @@ class Queries:
         return queryInsert
 
 
-    def insert_team_league_goals_stats(self, team_league_goals_stats_infos:dict[str:any]) -> str:
+    def generator_team_league_goals_stats(self, team_league_goals_stats_infos:dict[str:any]) -> str:
         idTeam = team_league_goals_stats_infos.get("id_team")
         idLeague = team_league_goals_stats_infos.get("id_league")
         typeStat = team_league_goals_stats_infos.get("type")
@@ -375,7 +349,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_team_league_cards_stats(self, team_league_cards_stats_infos: dict[str:any]) -> str:
+    def generator_team_league_cards_stats(self, team_league_cards_stats_infos: dict[str:any]) -> str:
         idTeam = team_league_cards_stats_infos.get("id_team")
         idLeague = team_league_cards_stats_infos.get("id_league")
         cardType = team_league_cards_stats_infos.get("card_type")
@@ -402,7 +376,7 @@ class Queries:
 
         return queryInsert
 
-    def insert_fixture_lineup(self, fixture_lineup_infos:dict[str:any]) -> str:
+    def generator_fixture_lineup(self, fixture_lineup_infos:dict[str:any]) -> str:
         idTeam = fixture_lineup_infos.get("id_team")
         idFixture = fixture_lineup_infos.get("id_fixture")
         idPlayer = fixture_lineup_infos.get("id_player")
