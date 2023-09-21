@@ -80,7 +80,7 @@ class Queries:
         idFixture = fixture_values.get("id_fixture")
         dateFixture = fixture_values.get("date")
         refereeFixture = fixture_values.get("referee")
-        idStadiumFixture = fixture_values.get("stadium")
+        idStadiumFixture = fixture_values.get("id_stadium")
         idHomeTeamFixture = fixture_values.get("home_team")
         idAwayTeamFixture = fixture_values.get("away_team")
         idLeague = fixture_values.get("id_league")

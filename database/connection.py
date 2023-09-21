@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from env_var import getVar
-from database.generator import Queries
+from handlers.generators import Queries
 from sqlalchemy import create_engine
 
 
