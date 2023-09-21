@@ -1,5 +1,7 @@
 from datetime import datetime as dt
+import pytz
 import datetime
+from unidecode import unidecode
 
 
 class Parsers:
@@ -16,8 +18,10 @@ class Parsers:
         imageStadium = stadiumRoot.get('image')
 
         try:
-            stateStadium = stadiumRoot.get('city').split(',')[1].strip().replace(" ", "_").lower()
-            cityStatium = stadiumRoot.get('city').split(',')[0].strip().replace(" ", "_").lower()
+            stateStadiumRaw = stadiumRoot.get('city').split(',')[1].strip().replace(" ", "_").lower()
+            cityStatiumRaw = stadiumRoot.get('city').split(',')[0].strip().replace(" ", "_").lower()
+            stateStadium = unidecode(stateStadiumRaw)
+            cityStatium = unidecode(cityStatiumRaw)
         except:
             stateStadium = None
             cityStatium = None
@@ -115,12 +119,14 @@ class Parsers:
         fixtureInfos: dict[str:any] = fixture_infos.get("fixture")
         leagueInfo = fixture_infos.get("league")
         teamsInfo = fixture_infos.get("teams")
-        saoPauloTz = datetime.timezone(datetime.timedelta(hours=-3))
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee")
-        datetimeFixture = dt.fromtimestamp(fixtureInfos.get("periods").get("first"), saoPauloTz) if fixtureInfos.get(
-            "periods").get("first") is not None else dt.utcfromtimestamp(946684800)
+
+        saoPauloTimezone = pytz.timezone('America/Sao_Paulo')
+        datetimeFixtureRaw = fixtureInfos.get("periods").get("first")
+        datetimeFixtureProceced = saoPauloTimezone.localize(dt.fromtimestamp(datetimeFixtureRaw)) if datetimeFixtureRaw is not None else dt.utcfromtimestamp(946684800)
+        datetimeFixture = str(datetimeFixtureProceced).replace("-03:00", "")
 
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
         homeTeam: str = teamsInfo.get("home").get("id")
@@ -144,7 +150,7 @@ class Parsers:
             "id_fixture": idFixture,
             "date": datetimeFixture,
             "referee": refereeFixture,
-            "stadium": idStadium,
+            "id_stadium": idStadium,
             "home_team": homeTeam,
             "away_team": awayTeam,
             "id_league": idLeague,
