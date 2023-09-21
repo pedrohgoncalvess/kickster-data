@@ -1,10 +1,8 @@
-import models.stadiums_model
 from database.connection import db_connection
 from typing import NoReturn
 from handlers.parsers import Parsers
-from database.generator import Queries
+from handlers.generators import Queries
 from database.data_from_db import DataFromDatabase
-from sqlalchemy.orm import sessionmaker
 
 
 class Managers:
@@ -19,24 +17,20 @@ class Managers:
     def stadium_management(self, stadium_infos: dict[str:str]) -> NoReturn:
         for stadium in stadium_infos:
             stadiumInfosTreated: dict = self.parser.stadium_parser(stadium)
-            newStadium = self.queries.insert_stadium(stadium_values=stadiumInfosTreated)
+            newStadium = self.queries.generator_stadium(stadium_values=stadiumInfosTreated)
             self.__insert__(newStadium)
-
 
     def team_management(self, team_info: dict[str:any]) -> NoReturn:
         for team in team_info:
             teamInfos = self.parser.team_parser(team)
-            newTeam = self.queries.insert_team(team_values=teamInfos)
+            newTeam = self.queries.generator_team(team_values=teamInfos)
             self.__insert__(newTeam)
-
 
     def league_management(self, league_infos: dict[str, dict]):
         for league in league_infos:
             leagueInfos = self.parser.league_parser(league)
-            newLeague = self.queries.insert_league(leagueInfos)
+            newLeague = self.queries.generator_league(leagueInfos)
             self.__insert__(newLeague)
-
-
 
     def player_management(self, player_values: list[dict[str:str]]):
         playersInDb = self.data_from_db.get_all_players_id()
@@ -46,19 +40,27 @@ class Managers:
                 idPlayer = playerInfos.get("id")
 
                 if idPlayer not in playersInDb:
-                    newPlayer = self.queries.insert_player(playerInfos)
+                    newPlayer = self.queries.generator_player(playerInfos)
                     self.__insert__(newPlayer)
             else:
                 playerInfos = self.parser.player_parser(playerValue)
-                newPlayer = self.queries.insert_player(playerInfos)
+                newPlayer = self.queries.generator_player(playerInfos)
                 self.__insert__(newPlayer)
 
     def fixture_management(self, fixtures_values: dict) -> NoReturn:
+        stadiumsInDB = self.data_from_db.get_all_stadiums_id()
+        fixturesInDb = []
         for fixtureValues in fixtures_values:
             fixturesInfos = self.parser.fixture_parser(fixtureValues)
-            queryInsert = self.queries.insert_fixture(fixturesInfos)
+            fixtureId = fixturesInfos.get("id_fixture")
 
-            self.execute_insert_query(queryInsert)
+            stadiumId = fixturesInfos.get("id_stadium")
+            if stadiumId not in stadiumsInDB:
+                fixturesInfos.update({"id_stadium": None})
+
+            if fixtureId not in fixturesInDb:
+                newFixture = self.queries.generator_fixture(fixturesInfos)
+                self.__insert__(newFixture)
 
     def team_squad_management(self, players_squad_values: list[dict[str:any]]) -> NoReturn:
         playersSquadInfo = self.parser.team_squad_parser(players_squad_values[0])
@@ -67,7 +69,7 @@ class Managers:
         for playerInfo in playersSquadInfo:
             idPlayer = playerInfo.get("id_player")
             if idPlayer not in idPlayersSquadInDb:
-                queryInsert = self.queries.insert_team_player_squad(playerInfo)
+                queryInsert = self.queries.generator_team_player_squad(playerInfo)
 
                 self.execute_insert_query(queryInsert)
 
@@ -80,13 +82,13 @@ class Managers:
             idFixture = fixtureStatsInfo.get("id_fixture")
 
             if idFixture not in fixturesInDb:
-                queryInsert = self.queries.insert_fixture_stats(fixtureStatsInfo)
+                queryInsert = self.queries.generator_fixture_stats(fixtureStatsInfo)
                 self.execute_insert_query(queryInsert)
 
     def fixture_event_management(self, fixture_events_values: list[dict[str:any]], fixture_id: int):
         for event in fixture_events_values:
             fixtureEventInfo = self.parser.fixture_events_parser(event, fixture_id)
-            queryInsert = self.queries.insert_fixture_event(fixtureEventInfo)
+            queryInsert = self.queries.generator_fixture_event(fixtureEventInfo)
             self.execute_insert_query(queryInsert)
         queryUpdate = self.queries.update_fixture_data_status(fixture_id)
         self.execute_update_query(queryUpdate)
@@ -94,24 +96,24 @@ class Managers:
     def player_stats_management(self, player_stats_values: list[dict[str:any]]) -> NoReturn:
         playerStat = self.parser.player_stats_parser(player_stats_values)
         for stat in playerStat:
-            queryInsert = self.queries.insert_player_stat(stat)
+            queryInsert = self.queries.generator_player_stat(stat)
             self.execute_insert_query(queryInsert)
 
     def team_league_fixtures_stats_management(self, team_league_stat_values: dict[str:any]) -> NoReturn:
         teamLeagueStat = self.parser.team_league_fixtures_stats_parser(team_league_stat_values)
-        queryInsert = self.queries.insert_team_league_fixtures_stats(teamLeagueStat)
+        queryInsert = self.queries.generator_team_league_fixtures_stats(teamLeagueStat)
         self.execute_insert_query(queryInsert)
 
     def team_league_goals_stats_management(self, team_league_goals_stats_values: list[dict[str:any]]) -> NoReturn:
         teamLeagueGoalsStat = self.parser.team_league_goals_stats_parser(team_league_goals_stats_values)
         for typeGoal in teamLeagueGoalsStat:
-            queryInsert = self.queries.insert_team_league_goals_stats(typeGoal)
+            queryInsert = self.queries.generator_team_league_goals_stats(typeGoal)
             self.execute_insert_query(queryInsert)
 
     def team_league_cards_stats_management(self, team_league_cards_stats_values: list[dict[str:any]]) -> NoReturn:
         teamLeagueCardsStats = self.parser.team_league_cards_stats_parser(team_league_cards_stats_values)
         for typeCard in teamLeagueCardsStats:
-            queryInsert = self.queries.insert_team_league_cards_stats(typeCard)
+            queryInsert = self.queries.generator_team_league_cards_stats(typeCard)
             self.execute_insert_query(queryInsert)
 
     def fixture_lineups_management(self, fixture_lineups_values: list[dict[str:any]],
@@ -119,5 +121,5 @@ class Managers:
         for teamLineUp in fixture_lineups_values:
             fixtureTeamLineUp = self.parser.fixture_lineup_parser(teamLineUp, id_fixture)
             for playerInLineUp in fixtureTeamLineUp:
-                queryInsert = self.queries.insert_fixture_lineup(playerInLineUp)
+                queryInsert = self.queries.generator_fixture_lineup(playerInLineUp)
                 self.execute_insert_query(queryInsert)
