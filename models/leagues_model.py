@@ -4,11 +4,7 @@ from sqlalchemy.orm import mapped_column
 from typing import Optional
 from sqlalchemy.orm import relationship
 from typing import List
-from sqlalchemy.orm import DeclarativeBase
-
-
-class Base(DeclarativeBase):
-    pass
+from models.declarative_base import Base
 
 
 class Leagues(Base):
@@ -23,3 +19,6 @@ class Leagues(Base):
     start_league: Mapped[int] = mapped_column(Integer, nullable=False)
     end_league: Mapped[int] = mapped_column(Integer, nullable=False)
     logo: Mapped[Optional[str]] = mapped_column(String(250), nullable=False)
+
+    league_fixture: Mapped[List["Fixtures"]] = relationship(back_populates="fixture_league")
+
