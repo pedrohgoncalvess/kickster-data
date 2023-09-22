@@ -1,9 +1,6 @@
 from sqlalchemy.orm import sessionmaker
-
 from env_var import getVar
-from handlers.generators import Queries
 from sqlalchemy import create_engine
-
 
 
 class DatabaseConnection:
@@ -13,7 +10,6 @@ class DatabaseConnection:
         self.dbName = getVar('DB_NAME')
         self.user = getVar('DB_USER')
         self.password = getVar('DB_PASSWORD')
-        self.queries = Queries()
         self.__engine__ = create_engine(
             f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbName}"
         )
@@ -24,10 +20,14 @@ class DatabaseConnection:
         try:
             session.add(new_object)
             session.commit()
+            session.close()
+            return True
         except Exception as error:
             print(error)
-        finally:
+            session.rollback()
             session.close()
+            return False
+
 
     def query_objects(self, statement):
         Session = sessionmaker(self.__engine__)
@@ -40,6 +40,18 @@ class DatabaseConnection:
 
         finally:
             session.close()
+
+    def update_objects(self, statement):
+        Session = sessionmaker(self.__engine__)
+        session = Session()
+        try:
+            session.execute(statement)
+            session.commit()
+            return True
+        except Exception as error:
+            print(error)
+            session.close()
+            return False
 
 
 
