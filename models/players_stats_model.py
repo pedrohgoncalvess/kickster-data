@@ -1,10 +1,9 @@
-from sqlalchemy import Boolean, Integer, Numeric, String, ForeignKey
+from sqlalchemy import Boolean, Integer, Numeric, String, ForeignKey, types
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from typing import Optional, List
+from typing import Optional
 from sqlalchemy.orm import relationship
 from models.declarative_base import Base
-from sqlalchemy import types
 
 
 class PlayersStats(Base):
