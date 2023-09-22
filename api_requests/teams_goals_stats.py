@@ -1,11 +1,11 @@
 from handlers.managers import Managers
 from api_requests.address_request import Request
-from database.data_from_db import DataFromDatabase
+from database.operations import Operations
 
 def main():
     req = Request()
     manager = Managers()
-    dataFromDb = DataFromDatabase()
+    dataFromDb = Operations()
 
     relationTeamsLeague = dataFromDb.get_all_league_teams_id()
     for teamLeague in relationTeamsLeague:

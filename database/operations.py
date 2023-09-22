@@ -1,13 +1,14 @@
-from handlers.generators import Queries
 from database.connection import DatabaseConnection
 from sqlalchemy import select
 from models import leagues_model, players_model, teams_model, stadiums_model, fixtures_model
+from sqlalchemy import update
 
 
-class DataFromDatabase:
+class Operations:
     def __init__(self):
-        self.queries = Queries()
-        self.execute_query = DatabaseConnection().query_objects
+        self.__connection__ = DatabaseConnection()
+        self.execute_query = self.__connection__.query_objects
+        self.update_query = self.__connection__.update_objects
 
     def get_all_leagues_id(self):
         statementIdLeagues = select(leagues_model.Leagues.id)
@@ -53,5 +54,19 @@ class DataFromDatabase:
             idFixtures.append(idFixture[0])
 
         return idFixtures
+
+    def get_finished_fixtures_id(self):
+        statementIdFinishedFixtures = select(fixtures_model.Fixtures.id).where(fixtures_model.Fixtures.status=='match_finished')
+        results = self.execute_query(statementIdFinishedFixtures)
+        idFinishedFixtures = []
+        for idFixture in results:
+            idFinishedFixtures.append(idFixture[0])
+
+        return idFinishedFixtures
+
+    def set_collected_fixtures_stats(self, id_fixture: int):
+        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_stats='collected')
+        resultOfUpdate = self.update_query(queryToGetFixture)
+        return resultOfUpdate
 
 

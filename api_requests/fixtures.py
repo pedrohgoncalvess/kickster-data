@@ -1,11 +1,11 @@
 from api_requests.address_request import Request
 from handlers.managers import Managers
-from database.data_from_db import DataFromDatabase
+from database.operations import Operations
 
 def main():
     req = Request()
     manager = Managers()
-    dataFromDb = DataFromDatabase()
+    dataFromDb = Operations()
     idLeagues = dataFromDb.get_all_leagues_id()
 
     for idLeague in idLeagues:

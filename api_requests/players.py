@@ -1,6 +1,6 @@
 from handlers.managers import Managers
 from api_requests.address_request import Request
-from database.data_from_db import DataFromDatabase
+from database.operations import Operations
 
 req = Request()
 
@@ -16,7 +16,7 @@ def make_team_player_request(id_team: str | int, page: str | int = 1) -> tuple[l
 
 def main():
     manager = Managers()
-    dataFromDb = DataFromDatabase()
+    dataFromDb = Operations()
 
     idTeams = dataFromDb.get_all_teams_id()
     for team in idTeams:

@@ -1,13 +1,13 @@
 from typing import NoReturn
 from handlers.managers import Managers
 from api_requests.address_request import Request
-from database.data_from_db import DataFromDatabase
+from database.operations import Operations
 
 
 def main():
     req = Request()
     manager = Managers()
-    dataFromDb = DataFromDatabase()
+    dataFromDb = Operations()
 
     idTeamsList = dataFromDb.get_all_teams_id()
 
