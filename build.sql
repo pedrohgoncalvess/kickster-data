@@ -9,6 +9,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION update_player_stats_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = current_timestamp;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION generate_compost_id_fixture_team(id_fixture integer, id_team integer)
 RETURNS varchar(20) IMMUTABLE
 AS $$
@@ -173,9 +181,8 @@ create table if not exists "ftd".fixtures_stats
     id serial,
     id_fixture integer not null,
     id_team integer not null,
-    home bool not null,
     id_coach integer,
-    formation varchar(10) not null,
+    formation varchar(10),
     shots_on_goal integer not null,
     shots_off_goal integer not null,
     shots_blocked integer not null,
@@ -276,8 +283,9 @@ create table if not exists "ftd".players_stats
   won_penalties integer not null,
   committed_penalties integer not null,
   scored_penalties integer not null,
-  missed_penalty integer not null,
-  saved_penalty integer not null,
+  missed_penalties integer not null,
+  saved_penalties integer not null,
+  updated_at timestamp not null default current_timestamp,
   id_compost varchar(20) unique generated always as (generate_compost_id_player_stat(id_player,id_league,id_team)) stored,
 
   constraint players_stats_pk primary key (id),
@@ -286,6 +294,10 @@ create table if not exists "ftd".players_stats
   constraint players_teams_fk foreign key (id_team) references "ftd".teams (id)
 );
 
+CREATE TRIGGER trigger_atualizar_updated_at
+BEFORE INSERT OR UPDATE ON ftd.players_stats
+FOR EACH ROW
+EXECUTE FUNCTION update_player_stats_updated_at();
 
 create table if not exists "ftd".teams_fixtures_stats
 (
