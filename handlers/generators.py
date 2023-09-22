@@ -1,7 +1,7 @@
 from models import (
     stadiums_model, teams_model, leagues_model,
     players_model, fixtures_model, fixtures_stats_model,
-    players_stats_model
+    players_stats_model, teams_squad_model, fixtures_events_model
 )
 
 class Generators:
@@ -100,24 +100,18 @@ class Generators:
 
         return newFixture
 
-    def generator_team_player_squad(self, player_squad_infos: dict[str:any]):
+    def generator_team_player_squad(self, player_squad_infos: dict[str:any]) -> teams_squad_model.TeamsSquad:
         idPlayer = player_squad_infos.get("id_player")
         idTeam = player_squad_infos.get("id_team")
         positionPlayer = player_squad_infos.get("position")
         numberPlayer = player_squad_infos.get("number")
+        injured = player_squad_infos.get("injured")
 
-        queryInsert = f"""
-        insert into ftb.teams_squad (id_team, id_player, shirt_number, "position") 
-        values
-         (
-         (select id from ftb.teams where id_team = {idTeam}),
-         (select id from ftb.players where id_player = {idPlayer}),
-         {numberPlayer},
-         '{positionPlayer}'
-         )
-        """
+        newSquadMember = teams_squad_model.TeamsSquad(
+            id_player=idPlayer, id_team=idTeam, shirt_number=numberPlayer, position=positionPlayer, injured=injured
+        )
 
-        return queryInsert
+        return newSquadMember
 
     def generator_fixture_stats(self, team_fixture_stats_infos: dict[str:any]) -> fixtures_stats_model.FixturesStats:
 
@@ -151,7 +145,7 @@ class Generators:
         return newFixtureStat
 
 
-    def generator_fixture_event(self, fixture_events_infos: dict[str:any]) -> str:
+    def generator_fixture_event(self, fixture_events_infos: dict[str:any]) -> fixtures_events_model.FixturesEvents:
         idTeam = fixture_events_infos.get("id_team")
         idFixture = fixture_events_infos.get("id_fixture")
         timeElapsed = fixture_events_infos.get("time")
@@ -161,47 +155,12 @@ class Generators:
         detailEvent = fixture_events_infos.get("detail")
         commentEvent = fixture_events_infos.get("comment")
 
-        if idPlayerAssist is not None:
-            queryInsert = f"""
-            insert into ftb.fixtures_events (id_team, id_fixture, id_player_principal, id_player_assist, "time", type_event, "detail", "comments")
-            values (
-            (select id from ftb.teams where id_team = {idTeam}),
-            (select id from ftb.fixtures where id_fixture = {idFixture}),
-            (select id from ftb.players where id_player = {idPrincipalPlayer}),
-            (select id from ftb.players where id_player = {idPlayerAssist}),
-            {timeElapsed},
-            '{typeEvent}',
-            '{detailEvent}',
-            '{commentEvent}'
-            )
-            """
-        else:
-            queryInsert = f"""
-            insert into ftb.fixtures_events (id_team, id_fixture, id_player_principal, "time", type_event, "detail", "comments")
-            values (
-            (select id from ftb.teams where id_team = {idTeam}),
-            (select id from ftb.fixtures where id_fixture = {idFixture}),
-            (select id from ftb.players where id_player = {idPrincipalPlayer}),
-            {timeElapsed},
-            '{typeEvent}',
-            '{detailEvent}',
-            '{commentEvent}'
-            )
-            """
-            if idPrincipalPlayer is None:
-                queryInsert = f"""
-                insert into ftb.fixtures_events (id_team, id_fixture, "time", type_event, "detail", "comments")
-                values (
-                (select id from ftb.teams where id_team = {idTeam}),
-                (select id from ftb.fixtures where id_fixture = {idFixture}),
-                {timeElapsed},
-                '{typeEvent}',
-                '{detailEvent}',
-                '{commentEvent}'
-                )
-                """
+        newFixtureEvents = fixtures_events_model.FixturesEvents(
+            id_team=idTeam, id_fixture=idFixture, time=timeElapsed, id_player_principal=idPrincipalPlayer,
+            id_player_assist=idPlayerAssist, type_event=typeEvent, detail=detailEvent, comments=commentEvent
+        )
 
-        return queryInsert
+        return newFixtureEvents
 
 
     def generator_player_stat(self, player_stat_infos: dict[str:any]) -> players_stats_model.PlayersStats:
