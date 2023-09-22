@@ -24,3 +24,6 @@ class Players(Base):
     image: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)
 
     fk_player_stat: Mapped[List["PlayersStats"]] = relationship(back_populates="player_stat_fk")
+    fk_player_team_squad: Mapped[List["TeamsSquad"]] = relationship(back_populates="team_squad_player_fk")
+    fk_fixture_event_principal_player = relationship("FixturesEvents", back_populates="fixture_event_principal_player_fk", foreign_keys="[FixturesEvents.id_player_principal]")
+    fk_fixture_event_assist_player = relationship("FixturesEvents", back_populates="fixture_event_assist_player_fk", foreign_keys="[FixturesEvents.id_player_assist]")
