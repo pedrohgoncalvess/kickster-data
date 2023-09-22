@@ -215,7 +215,7 @@ create table if not exists "ftd".fixtures_events
     "time" integer not null,
     type_event varchar(20) not null,
     "detail" varchar(30) not null,
-    "comments" varchar(50) not null,
+    "comments" varchar(50),
     id_compost varchar(50) not null unique generated always as (generate_compost_id_fixture_event(id_fixture, id_team, "time", type_event)) stored,
 
     constraint fixtures_events_pk primary key (id),
@@ -337,10 +337,10 @@ create table if not exists "ftd".teams_squad
     id serial,
     id_team integer not null,
     id_player integer not null unique,
-    shirt_number integer not null,
+    shirt_number integer,
     "position" varchar(30) not null,
     injured boolean default false not null,
-    updated_at timestamp default current_timestamp not null,
+    updated_at timestamp not null default current_timestamp,
     id_compost varchar(15) unique GENERATED ALWAYS as (generate_compost_id_team_player(id_team,id_player)) STORED,
 
     constraint teams_squad_pk primary key (id),
