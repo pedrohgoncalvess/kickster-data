@@ -11,7 +11,8 @@ class Managers:
         self.generator = Generators()
         self.data_from_db = Operations()
         self.__insert__ = db_connection.insert_object
-        self.__set_data_stats_collectd__ = self.data_from_db.set_collected_fixtures_stats
+        self.__set_data_stats_collected__ = self.data_from_db.set_collected_fixtures_stats
+        self.__set_data_events_collected__ = self.data_from_db.set_collected_fixtures_events
         self.execute_update_query = "pass"
 
     def stadium_management(self, stadium_infos: dict[str:str]) -> NoReturn:
@@ -71,32 +72,38 @@ class Managers:
             idFixture = newFixtureStat.id_fixture
             resultInsert = self.__insert__(newFixtureStat)
             if resultInsert is True:
-                self.__set_data_stats_collectd__(idFixture)
+                self.__set_data_stats_collected__(idFixture)
+
+    def fixture_event_management(self, fixture_events_values: list[dict[str:any]], fixture_id: int):
+        eventsInserted = []
+        for event in fixture_events_values:
+            fixtureEventInfo = self.parser.fixture_events_parser(event, fixture_id)
+            newFixtureEvent = self.generator.generator_fixture_event(fixtureEventInfo)
+            compostKey = f"{fixture_id}-{newFixtureEvent.id_team}-{newFixtureEvent.time}-{newFixtureEvent.type_event}"
+            if compostKey not in eventsInserted:
+                result = self.__insert__(newFixtureEvent)
+                eventsInserted.append(compostKey)
+                if result is True:
+                    self.__set_data_events_collected__(fixture_id)
 
     def team_squad_management(self, players_squad_values: list[dict[str:any]]) -> NoReturn:
         playersSquadInfo = self.parser.team_squad_parser(players_squad_values[0])
-        idPlayersSquadInDb = self.data_from_db.get_all_players_squad_id()
 
         for playerInfo in playersSquadInfo:
-            idPlayer = playerInfo.get("id_player")
-            if idPlayer not in idPlayersSquadInDb:
-                queryInsert = self.generator.generator_team_player_squad(playerInfo)
+            newSquadMember = self.generator.generator_team_player_squad(playerInfo)
+            self.__insert__(newSquadMember)
 
-                self.execute_insert_query(queryInsert)
-
-    def fixture_event_management(self, fixture_events_values: list[dict[str:any]], fixture_id: int):
-        for event in fixture_events_values:
-            fixtureEventInfo = self.parser.fixture_events_parser(event, fixture_id)
-            queryInsert = self.generator.generator_fixture_event(fixtureEventInfo)
-            self.execute_insert_query(queryInsert)
-        queryUpdate = self.generator.update_fixture_data_status(fixture_id)
-        self.execute_update_query(queryUpdate)
 
     def player_stats_management(self, player_stats_values: list[dict[str:any]]) -> NoReturn:
+        leaguesInDb = self.data_from_db.get_all_leagues_id()
         playerStat = self.parser.player_stats_parser(player_stats_values)
+        playersLeagueInserted = []
         for stat in playerStat:
             newPlayerStat = self.generator.generator_player_stat(stat)
-            self.__insert__(newPlayerStat)
+            compostKey = f"{newPlayerStat.id_player}-{newPlayerStat.id_league}"
+            if newPlayerStat.id_league in leaguesInDb and compostKey not in playersLeagueInserted:
+                self.__insert__(newPlayerStat)
+                playersLeagueInserted.append(compostKey)
 
     def team_league_fixtures_stats_management(self, team_league_stat_values: dict[str:any]) -> NoReturn:
         teamLeagueStat = self.parser.team_league_fixtures_stats_parser(team_league_stat_values)
