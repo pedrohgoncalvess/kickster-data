@@ -27,3 +27,6 @@ class Teams(Base):
     fixture_team_away = relationship("Fixtures", back_populates="team_away", foreign_keys="[Fixtures.id_team_away]")
     team_fixture_stat_fk: Mapped[List["FixturesStats"]] = relationship(back_populates="fixture_stat_team_fk")
     team_player_stat_fk: Mapped[List["PlayersStats"]] = relationship(back_populates="player_stat_team_fk")
+
+    fk_team_squad: Mapped[List["TeamsSquad"]] = relationship(back_populates="team_squad_fk")
+    fk_team_fixture_event: Mapped[List["FixturesEvents"]] = relationship(back_populates="fixture_event_team_fk")
