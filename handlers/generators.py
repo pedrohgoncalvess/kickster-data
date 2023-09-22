@@ -1,7 +1,10 @@
-from models import stadiums_model, teams_model, leagues_model, players_model, fixtures_model
+from models import (
+    stadiums_model, teams_model, leagues_model,
+    players_model, fixtures_model, fixtures_stats_model,
+    players_stats_model
+)
 
-
-class Queries:
+class Generators:
 
     def generator_stadium(self, stadium_values: dict[str:str]) -> stadiums_model.Stadiums:
 
@@ -116,17 +119,17 @@ class Queries:
 
         return queryInsert
 
-    def generator_fixture_stats(self, team_fixture_stats_infos: dict[str:any]):
+    def generator_fixture_stats(self, team_fixture_stats_infos: dict[str:any]) -> fixtures_stats_model.FixturesStats:
 
         idFixture = team_fixture_stats_infos.get("id_fixture")
         idTeam = team_fixture_stats_infos.get("id_team")
         formation = team_fixture_stats_infos.get("formation")
-        coach = team_fixture_stats_infos.get("coach")
+        idCoach = team_fixture_stats_infos.get("coach")
         shotsOnGoal = team_fixture_stats_infos.get("shots_on_goal")
         shotsOffGoal = team_fixture_stats_infos.get("shots_off_goal")
         shotsBlocked = team_fixture_stats_infos.get("blocked_shots")
         shotsInsideBox = team_fixture_stats_infos.get("shots_insidebox")
-        shotsOutsideBox = team_fixture_stats_infos.get("shots_outsidebox")
+        shotsOffsideBox = team_fixture_stats_infos.get("shots_outsidebox")
         fouls = team_fixture_stats_infos.get("fouls")
         cornerKicks = team_fixture_stats_infos.get("corner_kicks")
         offSides = team_fixture_stats_infos.get("offsides")
@@ -138,33 +141,14 @@ class Queries:
         accuratePasses = team_fixture_stats_infos.get("passes_accurate")
         expectedGoals = team_fixture_stats_infos.get("expected_goals")
 
-        queryInsert = f"""
-        insert into ftb.fixtures_stats (id_fixture, id_team, home, id_coach, formation,shots_on_goal, shots_off_goal, shots_blocked, shots_inside_box, shots_offside_box, fouls, corners, offsides, possession, yellow_cards, red_cards, goalkeeper_saves, total_passes, accurate_passes, expected_goals)
-        values (
-        (select id from ftb.fixtures where id_fixture = {idFixture}),
-        (select id from ftb.teams where id_team = {idTeam}),
-        (select case when id_team_home = (select id from ftb.teams where id_team = {idTeam}) then true else false end from ftb.fixtures where id_fixture = {idFixture}),
-        {coach},
-        '{formation}',
-        {shotsOnGoal},
-        {shotsOffGoal},
-        {shotsBlocked},
-        {shotsInsideBox},
-        {shotsOutsideBox},
-        {fouls},
-        {cornerKicks},
-        {offSides},
-        {ballPossession},
-        {yellowCards},
-        {redCards},
-        {goalKeeperSaves},
-        {totalPasses},
-        {accuratePasses},
-        {expectedGoals}
+        newFixtureStat = fixtures_stats_model.FixturesStats(
+            id_fixture=idFixture, id_team=idTeam, id_coach=idCoach, formation=formation,shots_on_goal=shotsOnGoal,
+            shots_off_goal=shotsOffGoal, shots_blocked=shotsBlocked, shots_inside_box=shotsInsideBox, shots_offside_box=shotsOffsideBox,
+            fouls=fouls, corners=cornerKicks, offsides=offSides, possession=ballPossession, yellow_cards=yellowCards, red_cards=redCards,
+            goalkeeper_saves=goalKeeperSaves, total_passes=totalPasses, accurate_passes=accuratePasses, expected_goals=expectedGoals
         )
-        """
 
-        return queryInsert
+        return newFixtureStat
 
 
     def generator_fixture_event(self, fixture_events_infos: dict[str:any]) -> str:
@@ -220,7 +204,7 @@ class Queries:
         return queryInsert
 
 
-    def generator_player_stat(self, player_stat_infos: dict[str:any]) -> str:
+    def generator_player_stat(self, player_stat_infos: dict[str:any]) -> players_stats_model.PlayersStats:
         idPlayer = player_stat_infos.get("id_player")
         idTeam = player_stat_infos.get("id_team")
         seasonLeague = player_stat_infos.get("season")
@@ -262,24 +246,20 @@ class Queries:
         penaltiesMissed = player_stat_infos.get("penalties_missed")
         penaltiesSaved = player_stat_infos.get("penalties_saved")
 
-        queryInsert = f"""
-        insert into ftb.players_stats (id_player, id_league, id_team, "position", captain, appearances, lineups, "minutes", rating, substitutes_in, 
-        substitutes_out, bench, shots_total, shots_on, goals, assists, conceded_goals, saved_goals, total_pass, key_pass, accuracy_pass, tackles, blocks,
-        interceptions, total_duels, win_duels, attempted_dribbles, success_dribbles, past_dribbles, drawn_fouls, committed_fouls, yellow_cards, yellow_red_cards,
-        red_cards, won_penalties, committed_penalties, scored_penalties, missed_penalty, saved_penalty 
-        ) values (
-        (select id from ftb.players where id_player = {idPlayer}),
-        (select id from ftb.leagues where id_league = {idLeague} and season = {seasonLeague}),
-        (select id from ftb.teams where id_team = {idTeam}), 
-        '{positionPlayer}', {isCaptain}, {gamesAppearances}, {gamesLineUps}, {gamesMinutes}, {ratingPlayer}, {substitutesIn}, {substitutesOut}, 
-        {bench}, {shotsTotal}, {shotsOn}, {goals}, {assists}, {goalsConceded}, {goalsSaved}, {passesTotal}, {passesKey}, 
-        {passesAccuracy}, {tacklesTotal}, {blocks}, {interceptions}, {duelsTotal}, {duelsWin}, {dribblesAttempted},
-        {dribblesSuccess}, {dribblesPast}, {foulsDraw}, {foulsCommitted}, {cardsYellow}, {cardsYellowRed}, {cardsRed}, {penaltiesWon},
-        {penaltiesCommitted}, {penaltiesScored}, {penaltiesMissed}, {penaltiesSaved}
+        newPlayerStat = players_stats_model.PlayersStats(
+            id_player=idPlayer, id_league=idLeague, id_team=idTeam, position=positionPlayer, captain=isCaptain,
+            appearances=gamesAppearances, lineups=gamesLineUps, minutes=gamesMinutes, rating=ratingPlayer,
+            substitutes_in=substitutesIn, substitutes_out=substitutesOut, bench=bench, shots_total=shotsTotal,
+            shots_on=shotsOn, goals=goals, assists=assists, conceded_goals=goalsConceded, saved_goals=goalsSaved,
+            total_pass=passesTotal, key_pass=passesKey, accuracy_pass=passesAccuracy, tackles=tacklesTotal,
+            blocks=blocks, interceptions=interceptions, total_duels=duelsTotal, win_duels=duelsWin,
+            attempted_dribbles=dribblesAttempted, success_dribbles=dribblesSuccess, past_dribbles=dribblesPast,
+            drawn_fouls=foulsDraw, committed_fouls=foulsCommitted, yellow_cards=cardsYellow, yellow_red_cards=cardsYellowRed,
+            red_cards=cardsRed, won_penalties=penaltiesWon, committed_penalties=penaltiesCommitted, scored_penalties=penaltiesScored,
+            missed_penalties=penaltiesMissed, saved_penalties=penaltiesSaved
         )
-        """
 
-        return queryInsert
+        return newPlayerStat
 
     def generator_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> str:
         idTeam = team_league_fixtures_stats_infos.get("id_team")
