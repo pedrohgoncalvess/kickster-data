@@ -178,6 +178,7 @@ class Parsers:
                 "id_team": idTeam,
                 "position": positionPlayer,
                 "number": numberPlayer if numberPlayer is not None else 0,
+                "injured":False
             }
             listPlayersToReturn.append(dictPlayer)
 
@@ -233,7 +234,7 @@ class Parsers:
             "id_player_assist": assistPlayer,
             "type": typeEvent.lower().replace(" ", "_") if type(typeEvent) == str else None,
             "detail": detailEvent.lower().replace(" ", "_") if type(detailEvent) == str else None,
-            "comment": commentEvent.lower().replace(" ", "_") if type(commentEvent) == str else 'null'
+            "comment": commentEvent.lower().replace(" ", "_") if type(commentEvent) == str else None
         }
 
         return dictToReturn
