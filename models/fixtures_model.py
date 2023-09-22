@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, MetaData, Boolean, Integer, Computed, String, Identity, ForeignKey, CHAR
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from typing import Optional, List
@@ -33,3 +33,4 @@ class Fixtures(Base):
     team_away = relationship("Teams", back_populates="fixture_team_away", foreign_keys="[Fixtures.id_team_away]")
     fixture_league: Mapped["Leagues"] = relationship(back_populates="league_fixture")
     fixture_stadium: Mapped["Stadiums"] = relationship(back_populates="stadium_fixture")
+    fixture_stat_fk: Mapped[List["FixturesStats"]] = relationship(back_populates="fixture_fk")
