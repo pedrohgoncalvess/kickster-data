@@ -69,4 +69,9 @@ class Operations:
         resultOfUpdate = self.update_query(queryToGetFixture)
         return resultOfUpdate
 
+    def set_collected_fixtures_events(self, id_fixture: int):
+        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_events='collected')
+        resultOfUpdate = self.update_query(queryToGetFixture)
+        return resultOfUpdate
+
 
