@@ -21,4 +21,5 @@ class Leagues(Base):
     logo: Mapped[Optional[str]] = mapped_column(String(250), nullable=False)
 
     league_fixture: Mapped[List["Fixtures"]] = relationship(back_populates="fixture_league")
+    league_player_stat_fk: Mapped[List["PlayersStats"]] = relationship(back_populates="player_stat_league_fk")
 
