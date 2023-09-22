@@ -25,3 +25,5 @@ class Teams(Base):
     home_stadium: Mapped["Stadiums"] = relationship(back_populates="stadium_team")
     fixture_team_home = relationship("Fixtures", back_populates="team_home", foreign_keys="[Fixtures.id_team_home]")
     fixture_team_away = relationship("Fixtures", back_populates="team_away", foreign_keys="[Fixtures.id_team_away]")
+    team_fixture_stat_fk: Mapped[List["FixturesStats"]] = relationship(back_populates="fixture_stat_team_fk")
+    team_player_stat_fk: Mapped[List["PlayersStats"]] = relationship(back_populates="player_stat_team_fk")
