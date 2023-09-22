@@ -34,3 +34,4 @@ class Fixtures(Base):
     fixture_league: Mapped["Leagues"] = relationship(back_populates="league_fixture")
     fixture_stadium: Mapped["Stadiums"] = relationship(back_populates="stadium_fixture")
     fixture_stat_fk: Mapped[List["FixturesStats"]] = relationship(back_populates="fixture_fk")
+    fk_fixture_event: Mapped[List["FixturesEvents"]] = relationship(back_populates="fixture_event_fk")
