@@ -1,19 +1,11 @@
 create schema if not exists "ftd";
 SET timezone = 'America/Sao_Paulo';
 
-CREATE OR REPLACE FUNCTION update_teams_squad_updated_at()
+CREATE OR REPLACE FUNCTION updated_at_with_current_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = current_timestamp;
   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION update_player_stats_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = current_timestamp;
-    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -93,7 +85,8 @@ language plpgsql;
 
 create table if not exists "ftd".leagues
 (
-    id integer not null,
+    id serial,
+    id_league integer not null,
     "name" varchar(50) not null,
     country varchar(15) not null,
     "type" varchar(7) not null,
@@ -294,10 +287,10 @@ create table if not exists "ftd".players_stats
   constraint players_teams_fk foreign key (id_team) references "ftd".teams (id)
 );
 
-CREATE TRIGGER trigger_atualizar_updated_at
+CREATE TRIGGER trigger_att_updated_at_players_stats
 BEFORE INSERT OR UPDATE ON ftd.players_stats
 FOR EACH ROW
-EXECUTE FUNCTION update_player_stats_updated_at();
+EXECUTE FUNCTION updated_at_with_current_timestamp();
 
 create table if not exists "ftd".teams_fixtures_stats
 (
@@ -323,6 +316,7 @@ create table if not exists "ftd".teams_fixtures_stats
     worst_lose_home varchar(5) not null,
     better_win_away varchar(5) not null,
     worst_lose_away varchar(5) not null,
+    updated_at timestamp not null default current_timestamp,
     id_compost varchar(20) unique
         GENERATED ALWAYS AS (generate_compost_id_team_league(id_team, id_league)) STORED,
 
@@ -330,6 +324,11 @@ create table if not exists "ftd".teams_fixtures_stats
     constraint teams_fixtures_stats_team_fk foreign key (id_team) references "ftd".teams (id),
     constraint teams_fixtures_stats_league_fk foreign key (id_league) references "ftd".leagues (id)
 );
+
+CREATE TRIGGER trigger_att_updated_at_teams_fixtures_stats
+BEFORE INSERT OR UPDATE ON ftd.teams_fixtures_stats
+FOR EACH ROW
+EXECUTE FUNCTION updated_at_with_current_timestamp();
 
 
 create table if not exists "ftd".teams_squad
@@ -348,10 +347,10 @@ create table if not exists "ftd".teams_squad
     constraint squad_player_fk foreign key (id_player) references "ftd".players (id)
 );
 
-CREATE OR REPLACE TRIGGER teams_squad_updated_at_trigger
-BEFORE UPDATE ON "ftd".teams_squad
+CREATE TRIGGER trigger_att_updated_at_teams_squad
+BEFORE INSERT OR UPDATE ON ftd.teams_squad
 FOR EACH ROW
-EXECUTE FUNCTION update_teams_squad_updated_at();
+EXECUTE FUNCTION updated_at_with_current_timestamp();
 
 create table if not exists "ftd".teams_goals_stats
 (
@@ -369,6 +368,7 @@ create table if not exists "ftd".teams_goals_stats
     in_minute_76_90 integer not null,
     in_minute_91_105 integer not null,
     in_minute_106_120 integer not null,
+    updated_at timestamp not null default current_timestamp,
     id_compost varchar(30) unique
         GENERATED ALWAYS AS (generate_compost_id_team_league_goal_type(id_team, id_league, "type")) STORED,
 
@@ -376,6 +376,11 @@ create table if not exists "ftd".teams_goals_stats
     constraint teams_goals_stats_team_fk foreign key (id_team) references "ftd".teams,
     constraint teams_goals_stats_league_fk foreign key (id_league) references "ftd".leagues
 );
+
+CREATE TRIGGER trigger_att_updated_at_teams_goals_stats
+BEFORE INSERT OR UPDATE ON ftd.teams_goals_stats
+FOR EACH ROW
+EXECUTE FUNCTION updated_at_with_current_timestamp();
 
 create table if not exists "ftd".teams_cards_stats
 (
@@ -391,6 +396,7 @@ create table if not exists "ftd".teams_cards_stats
     in_minute_76_90 integer not null,
     in_minute_91_105 integer not null,
     in_minute_106_120 integer not null,
+    updated_at timestamp not null default current_timestamp,
     id_compost varchar(20) unique
         GENERATED ALWAYS as (generate_compost_id_team_league_card(id_team,id_league, card_type)) STORED,
 
@@ -398,4 +404,9 @@ create table if not exists "ftd".teams_cards_stats
     constraint teams_cards_stats_team_fk foreign key (id_team) references "ftd".teams (id),
     constraint teams_cards_stats_league_fk foreign key (id_league) references "ftd".leagues (id)
 );
+
+CREATE TRIGGER trigger_att_updated_at_teams_cards_stats
+BEFORE INSERT OR UPDATE ON ftd.teams_cards_stats
+FOR EACH ROW
+EXECUTE FUNCTION updated_at_with_current_timestamp();
 
