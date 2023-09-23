@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Integer, Numeric, String, ForeignKey, types
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
+from sqlalchemy.sql import func
 from typing import Optional
 from sqlalchemy.orm import relationship
 from models.declarative_base import Base
@@ -52,7 +53,7 @@ class PlayersStats(Base):
     scored_penalties: Mapped[int] = mapped_column(Integer, nullable=False)
     missed_penalties: Mapped[int] = mapped_column(Integer, nullable=False)
     saved_penalties: Mapped[int] = mapped_column(Integer, nullable=False)
-    updated_at: Mapped[Optional[types.DateTime]] = mapped_column(String(20), nullable=True, autoincrement=True)
+    updated_at: Mapped[Optional[types.DateTime]] = mapped_column(String(20), nullable=True, default=func.now())
 
     player_stat_fk: Mapped["Players"] = relationship(back_populates="fk_player_stat")
     player_stat_league_fk: Mapped["Leagues"] = relationship(back_populates="league_player_stat_fk")
