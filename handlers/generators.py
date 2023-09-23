@@ -1,7 +1,8 @@
 from models import (
     stadiums_model, teams_model, leagues_model,
     players_model, fixtures_model, fixtures_stats_model,
-    players_stats_model, teams_squad_model, fixtures_events_model
+    players_stats_model, teams_squad_model, fixtures_events_model,
+    teams_fixtures_stats_model, teams_cards_stats_model, teams_goals_stats_model
 )
 
 class Generators:
@@ -54,7 +55,7 @@ class Generators:
         seasonLeague = leagues_values.get('season')
 
         newLeague = leagues_model.Leagues(
-            id=idLeague, name=nameLeague, start_league=startLeague, end_league=endLeague, type=typeLeague,
+            id_league=idLeague, name=nameLeague, start_league=startLeague, end_league=endLeague, type=typeLeague,
             season=seasonLeague, country=countryLeague, logo=logoLeague
         )
 
@@ -220,7 +221,7 @@ class Generators:
 
         return newPlayerStat
 
-    def generator_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> str:
+    def generator_team_league_fixtures_stats(self, team_league_fixtures_stats_infos:dict[str:any]) -> teams_fixtures_stats_model.TeamsFixturesStats:
         idTeam = team_league_fixtures_stats_infos.get("id_team")
         idLeague = team_league_fixtures_stats_infos.get("id_league")
         fixturesHome = team_league_fixtures_stats_infos.get("fixtures_home")
@@ -243,23 +244,18 @@ class Generators:
         worstLoseHome = team_league_fixtures_stats_infos.get("worst_lose_home")
         worstLoseAway = team_league_fixtures_stats_infos.get("worst_lose_away")
 
-        queryInsert = f"""
-        insert into ftb.teams_fixtures_stats (
-        id_team, id_league, fixtures_home, fixtures_away, wins_home,
-        wins_away, draws_home, draws_away, loses_home, loses_away, clean_sheets_home, clean_sheets_away, not_scored_home,
-        not_scored_away, max_wins_streak, max_draws_streak, max_loses_streak, better_win_home, worst_lose_home, better_win_away, worst_lose_away)
-         values (
-         (select id from ftb.teams where id_team = {idTeam}),
-         (select id from ftb.leagues where id_league = {idLeague}),
-         {fixturesHome}, {fixturesAway}, {winsHome}, {winsAway}, {drawsHome}, {drawsAway}, {losesHome}, {losesAway}, {cleanSheetsHome}, {cleanSheetsAway},
-         {notScoredHome}, {notScoredAway}, {maxWinStreak}, {maxDrawsStreak}, {maxLosesStreak}, '{betterWinHome}', '{betterWinAway}', '{worstLoseHome}', '{worstLoseAway}'
-         ) 
-        """
+        newTeamLeagueStat = teams_fixtures_stats_model.TeamsFixturesStats(
+            id_team=idTeam, id_league=idLeague, fixtures_home=fixturesHome, fixtures_away=fixturesAway, wins_home=winsHome,
+            wins_away=winsAway, draws_home=drawsHome, draws_away=drawsAway, loses_home=losesHome, loses_away=losesAway,
+            clean_sheets_home=cleanSheetsHome, clean_sheets_away=cleanSheetsAway, not_scored_home=notScoredHome, not_scored_away=notScoredAway,
+            max_wins_streak=maxWinStreak, max_draws_streak=maxDrawsStreak, max_loses_streak=maxLosesStreak, better_win_home=betterWinHome,
+            worst_lose_home=worstLoseHome, better_win_away=betterWinAway, worst_lose_away=worstLoseAway
+        )
 
-        return queryInsert
+        return newTeamLeagueStat
 
 
-    def generator_team_league_goals_stats(self, team_league_goals_stats_infos:dict[str:any]) -> str:
+    def generator_team_league_goals_stats(self, team_league_goals_stats_infos:dict[str:any]) -> teams_goals_stats_model.TeamsGoalsStats:
         idTeam = team_league_goals_stats_infos.get("id_team")
         idLeague = team_league_goals_stats_infos.get("id_league")
         typeStat = team_league_goals_stats_infos.get("type")
@@ -274,21 +270,15 @@ class Generators:
         inMinute91_105 = team_league_goals_stats_infos.get("in_minute_91_105")
         inMinute106_120 = team_league_goals_stats_infos.get("in_minute_106_120")
 
-        queryInsert = f"""
-        insert into ftb.teams_goals_stats (id_team, id_league, "type", goals_home, goals_away,
-         in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
-         in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
-         values (
-         (select id from ftb.teams where id_team = {idTeam}),
-         (select id from ftb.leagues where id_league = {idLeague}),
-         '{typeStat}', {goalsHome}, {goalsAway}, {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
-         {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
-         )
-        """
+        newTeamGoalStat = teams_goals_stats_model.TeamsGoalsStats(
+            id_team=idTeam, id_league=idLeague, type=typeStat, goals_home=goalsHome, goals_away=goalsAway, in_minute_0_15=inMinute0_15, in_minute_16_30=inMinute16_30,
+            in_minute_31_45=inMinute31_45, in_minute_46_60=inMinute46_60, in_minute_61_75=inMinute61_75, in_minute_76_90=inMinute76_90,
+            in_minute_91_105=inMinute91_105, in_minute_106_120=inMinute106_120
+        )
 
-        return queryInsert
+        return newTeamGoalStat
 
-    def generator_team_league_cards_stats(self, team_league_cards_stats_infos: dict[str:any]) -> str:
+    def generator_team_league_cards_stats(self, team_league_cards_stats_infos: dict[str:any]) -> teams_cards_stats_model.TeamsCardsStats:
         idTeam = team_league_cards_stats_infos.get("id_team")
         idLeague = team_league_cards_stats_infos.get("id_league")
         cardType = team_league_cards_stats_infos.get("card_type")
@@ -301,19 +291,13 @@ class Generators:
         inMinute91_105 = team_league_cards_stats_infos.get("in_minute_91_105")
         inMinute106_120 = team_league_cards_stats_infos.get("in_minute_106_120")
 
-        queryInsert = f"""
-        insert into ftb.teams_cards_stats (id_team, id_league, card_type,
-         in_minute_0_15, in_minute_16_30, in_minute_31_45, in_minute_46_60, 
-         in_minute_61_75, in_minute_76_90, in_minute_91_105, in_minute_106_120)
-         values (
-         (select id from ftb.teams where id_team = {idTeam}),
-         (select id from ftb.leagues where id_league = {idLeague}),
-         '{cardType}', {inMinute0_15}, {inMinute16_30}, {inMinute31_45},
-         {inMinute46_60}, {inMinute61_75}, {inMinute76_90}, {inMinute91_105}, {inMinute106_120}
-         )
-        """
+        newCardStatTypeCard = teams_cards_stats_model.TeamsCardsStats(
+            id_team=idTeam, id_league=idLeague, card_type=cardType, in_minute_0_15=inMinute0_15, in_minute_16_30=inMinute16_30,
+            in_minute_31_45=inMinute31_45, in_minute_46_60=inMinute46_60, in_minute_61_75=inMinute61_75, in_minute_76_90=inMinute76_90,
+            in_minute_91_105=inMinute91_105, in_minute_106_120=inMinute106_120
+        )
 
-        return queryInsert
+        return newCardStatTypeCard
 
     def generator_fixture_lineup(self, fixture_lineup_infos:dict[str:any]) -> str:
         idTeam = fixture_lineup_infos.get("id_team")
