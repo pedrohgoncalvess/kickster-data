@@ -107,20 +107,20 @@ class Managers:
 
     def team_league_fixtures_stats_management(self, team_league_stat_values: dict[str:any]) -> NoReturn:
         teamLeagueStat = self.parser.team_league_fixtures_stats_parser(team_league_stat_values)
-        queryInsert = self.generator.generator_team_league_fixtures_stats(teamLeagueStat)
-        self.execute_insert_query(queryInsert)
+        newTeamStat = self.generator.generator_team_league_fixtures_stats(teamLeagueStat)
+        self.__insert__(newTeamStat)
 
     def team_league_goals_stats_management(self, team_league_goals_stats_values: list[dict[str:any]]) -> NoReturn:
         teamLeagueGoalsStat = self.parser.team_league_goals_stats_parser(team_league_goals_stats_values)
         for typeGoal in teamLeagueGoalsStat:
             queryInsert = self.generator.generator_team_league_goals_stats(typeGoal)
-            self.execute_insert_query(queryInsert)
+            self.__insert__(queryInsert)
 
     def team_league_cards_stats_management(self, team_league_cards_stats_values: list[dict[str:any]]) -> NoReturn:
         teamLeagueCardsStats = self.parser.team_league_cards_stats_parser(team_league_cards_stats_values)
         for typeCard in teamLeagueCardsStats:
-            queryInsert = self.generator.generator_team_league_cards_stats(typeCard)
-            self.execute_insert_query(queryInsert)
+            newTeamStatTypeCard = self.generator.generator_team_league_cards_stats(typeCard)
+            self.__insert__(newTeamStatTypeCard)
 
     def fixture_lineups_management(self, fixture_lineups_values: list[dict[str:any]],
                                    id_fixture: str | int) -> NoReturn:
