@@ -5,6 +5,7 @@ from typing import Optional
 from sqlalchemy.orm import relationship
 from typing import List
 from models.declarative_base import Base
+from models.fixtures_stats_model import FixturesStats
 
 
 class Teams(Base):
@@ -30,3 +31,6 @@ class Teams(Base):
 
     fk_team_squad: Mapped[List["TeamsSquad"]] = relationship(back_populates="team_squad_fk")
     fk_team_fixture_event: Mapped[List["FixturesEvents"]] = relationship(back_populates="fixture_event_team_fk")
+    fk_team_fixture_stat: Mapped[List["TeamsFixturesStats"]] = relationship(back_populates="team_fixture_stat_fk")
+    fk_team_cards_stat: Mapped[List["TeamsCardsStats"]] = relationship(back_populates="team_cards_stat_fk")
+    fk_team_goals_stat: Mapped[List["TeamsGoalsStats"]] = relationship(back_populates="team_goals_stat_fk")
