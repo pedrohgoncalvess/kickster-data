@@ -5,6 +5,8 @@ from typing import Optional, List
 from sqlalchemy.orm import relationship
 from models.declarative_base import Base
 from sqlalchemy import types
+from models.teams_squad_model import TeamsSquad
+from models.fixtures_events_model import FixturesEvents #this import load the fixturesevents class
 
 
 class Players(Base):
