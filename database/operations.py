@@ -2,6 +2,7 @@ from database.connection import DatabaseConnection
 from sqlalchemy import select
 from models import leagues_model, players_model, teams_model, stadiums_model, fixtures_model
 from sqlalchemy import update
+from datetime import datetime
 
 
 class Operations:
@@ -9,9 +10,10 @@ class Operations:
         self.__connection__ = DatabaseConnection()
         self.execute_query = self.__connection__.query_objects
         self.update_query = self.__connection__.update_objects
+        self.actual_season = datetime.now().year
 
     def get_all_leagues_id(self):
-        statementIdLeagues = select(leagues_model.Leagues.id)
+        statementIdLeagues = select(leagues_model.Leagues.id_league)
         results = self.execute_query(statementIdLeagues)
         idLeagues = []
         for idLeague in results:
@@ -64,6 +66,20 @@ class Operations:
 
         return idFinishedFixtures
 
+    def get_relation_team_league_id(self):
+        statementRelationTeamLeague = select(fixtures_model.Fixtures.id_team_home.distinct(), fixtures_model.Fixtures.id_league)
+        results = self.execute_query(statementRelationTeamLeague)
+        return results
+
+    def get_relation_id_season_leagues(self):
+        queryToGetId = select(leagues_model.Leagues.id, leagues_model.Leagues.id_league, leagues_model.Leagues.season)
+        results = self.execute_query(queryToGetId)
+        relationIdLeagues = {}
+        if len(results) > 0:
+            for result in results:
+                relationIdLeagues.update({f"{result[1]}-{result[2]}":result[0]})
+            return relationIdLeagues
+
     def set_collected_fixtures_stats(self, id_fixture: int):
         queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_stats='collected')
         resultOfUpdate = self.update_query(queryToGetFixture)
@@ -73,5 +89,3 @@ class Operations:
         queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_events='collected')
         resultOfUpdate = self.update_query(queryToGetFixture)
         return resultOfUpdate
-
-
