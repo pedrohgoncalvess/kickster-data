@@ -225,9 +225,9 @@ create table if not exists "ftd".fixtures_lineups
     id_team integer not null,
     id_player integer not null,
     "type" char(5) not null,
-    "position" char(1) not null,
+    "position" char(1),
     grid char(3) not null,
-    id_compost varchar(10) unique
+    id_compost varchar(25) unique
         generated always as (generate_compost_id_fixture_lineup(id_fixture, id_player)) stored,
 
     constraint fixtures_lineups_pk primary key (id),
