@@ -34,3 +34,4 @@ class Teams(Base):
     fk_team_fixture_stat: Mapped[List["TeamsFixturesStats"]] = relationship(back_populates="team_fixture_stat_fk")
     fk_team_cards_stat: Mapped[List["TeamsCardsStats"]] = relationship(back_populates="team_cards_stat_fk")
     fk_team_goals_stat: Mapped[List["TeamsGoalsStats"]] = relationship(back_populates="team_goals_stat_fk")
+    fk_fixture_lineup_team: Mapped[List["FixturesLineups"]] = relationship(back_populates="fixture_lineup_team_fk")

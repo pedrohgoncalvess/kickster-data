@@ -29,3 +29,4 @@ class Players(Base):
     fk_player_team_squad: Mapped[List["TeamsSquad"]] = relationship(back_populates="team_squad_player_fk")
     fk_fixture_event_principal_player = relationship("FixturesEvents", back_populates="fixture_event_principal_player_fk", foreign_keys="[FixturesEvents.id_player_principal]")
     fk_fixture_event_assist_player = relationship("FixturesEvents", back_populates="fixture_event_assist_player_fk", foreign_keys="[FixturesEvents.id_player_assist]")
+    fk_fixture_lineup_player: Mapped[List["FixturesLineups"]] = relationship(back_populates="fixture_lineup_player_fk")
