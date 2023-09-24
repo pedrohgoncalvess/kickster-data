@@ -21,6 +21,15 @@ class Operations:
 
         return idLeagues
 
+    def get_all_leagues_intern_id(self):
+        statementIdLeagues = select(leagues_model.Leagues.id)
+        results = self.execute_query(statementIdLeagues)
+        idLeagues = []
+        for idLeague in results:
+            idLeagues.append(idLeague[0])
+
+        return idLeagues
+
     def get_all_teams_id(self):
         statementIdTeams = select(teams_model.Teams.id)
         results = self.execute_query(statementIdTeams)
@@ -58,7 +67,8 @@ class Operations:
         return idFixtures
 
     def get_finished_fixtures_id(self):
-        statementIdFinishedFixtures = select(fixtures_model.Fixtures.id).where(fixtures_model.Fixtures.status=='match_finished')
+        statementIdFinishedFixtures = select(fixtures_model.Fixtures.id).where(
+            fixtures_model.Fixtures.status == 'match_finished')
         results = self.execute_query(statementIdFinishedFixtures)
         idFinishedFixtures = []
         for idFixture in results:
@@ -67,7 +77,8 @@ class Operations:
         return idFinishedFixtures
 
     def get_relation_team_league_id(self):
-        statementRelationTeamLeague = select(fixtures_model.Fixtures.id_team_home.distinct(), fixtures_model.Fixtures.id_league)
+        statementRelationTeamLeague = select(fixtures_model.Fixtures.id_team_home.distinct(),
+                                             leagues_model.Leagues.id_league).join(leagues_model.Leagues)
         results = self.execute_query(statementRelationTeamLeague)
         return results
 
@@ -77,15 +88,53 @@ class Operations:
         relationIdLeagues = {}
         if len(results) > 0:
             for result in results:
-                relationIdLeagues.update({f"{result[1]}-{result[2]}":result[0]})
+                relationIdLeagues.update({f"{result[1]}-{result[2]}": result[0]})
             return relationIdLeagues
 
     def set_collected_fixtures_stats(self, id_fixture: int):
-        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_stats='collected')
+        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id == id_fixture)).values(
+            data_stats='collected')
         resultOfUpdate = self.update_query(queryToGetFixture)
         return resultOfUpdate
 
     def set_collected_fixtures_events(self, id_fixture: int):
-        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id==id_fixture)).values(data_events='collected')
+        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id == id_fixture)).values(
+            data_events='collected')
         resultOfUpdate = self.update_query(queryToGetFixture)
         return resultOfUpdate
+
+    def set_collected_fixtures_lineups(self, id_fixture: int):
+        queryToGetFixture = (update(fixtures_model.Fixtures).where(fixtures_model.Fixtures.id == id_fixture)).values(
+            data_lineups='collected')
+        resultOfUpdate = self.update_query(queryToGetFixture)
+        return resultOfUpdate
+
+    def get_not_collectd_fixtures_stats(self):
+        statementNotStatsCollectdFixtures = select(fixtures_model.Fixtures.id).where(
+            fixtures_model.Fixtures.status == 'match_finished', fixtures_model.Fixtures.data_stats == 'waiting')
+        results = self.execute_query(statementNotStatsCollectdFixtures)
+        notStatsCollectedFixtures = []
+        for idFixture in results:
+            notStatsCollectedFixtures.append(idFixture[0])
+
+        return notStatsCollectedFixtures
+
+    def get_not_collectd_fixtures_events(self):
+        statementNotEventsCollectdFixtures = select(fixtures_model.Fixtures.id).where(
+            fixtures_model.Fixtures.status == 'match_finished', fixtures_model.Fixtures.data_events == 'waiting')
+        results = self.execute_query(statementNotEventsCollectdFixtures)
+        notEventsCollectedFixtures = []
+        for idFixture in results:
+            notEventsCollectedFixtures.append(idFixture[0])
+
+        return notEventsCollectedFixtures
+
+    def get_not_collectd_fixtures_lineups(self):
+        statementNotLineupsCollectdFixtures = select(fixtures_model.Fixtures.id).where(
+            fixtures_model.Fixtures.status == 'match_finished', fixtures_model.Fixtures.data_lineups == 'waiting')
+        results = self.execute_query(statementNotLineupsCollectdFixtures)
+        notLineupsCollectedFixtures = []
+        for idFixture in results:
+            notLineupsCollectedFixtures.append(idFixture[0])
+
+        return notLineupsCollectedFixtures
