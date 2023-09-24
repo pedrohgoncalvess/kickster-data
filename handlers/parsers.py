@@ -1,12 +1,14 @@
 from datetime import datetime as dt
 import pytz
-import datetime
+from database.operations import Operations
 from unidecode import unidecode
 
 
 class Parsers:
     def __init__(self):
         self.actualYear = int(dt.now().year)
+        self.__operations__ = Operations()
+        self.ids_league = self.__operations__.get_relation_id_season_leagues()
 
     def stadium_parser(self, stadium_infos: dict[str:str]) -> dict[str:str]:
         stadiumRoot = stadium_infos.get("venue")
@@ -121,7 +123,7 @@ class Parsers:
         teamsInfo = fixture_infos.get("teams")
 
         idFixture: str = fixtureInfos.get("id")
-        refereeFixture: str = fixtureInfos.get("referee")
+        refereeFixture: str = fixtureInfos.get("referee").split(",")[0] if fixtureInfos.get("referee") is not None else None
 
         saoPauloTimezone = pytz.timezone('America/Sao_Paulo')
         datetimeFixtureRaw = fixtureInfos.get("periods").get("first")
@@ -131,7 +133,8 @@ class Parsers:
         idStadium: int = fixtureInfos.get("venue").get("id") if fixtureInfos.get("venue").get("id") != "null" else None
         homeTeam: str = teamsInfo.get("home").get("id")
         awayTeam: str = teamsInfo.get("away").get("id")
-        idLeague: int = leagueInfo.get("id")
+        idLeagueEx: int = leagueInfo.get("id")
+        idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
         roundLeague: str = leagueInfo.get("round")
         seasonLeague: int = leagueInfo.get("season")
 
@@ -245,7 +248,8 @@ class Parsers:
             idPlayer = teamInResponse.get("player").get("id")
             statisticsRoot = teamInResponse.get("statistics")
             for stats in statisticsRoot:
-                idLeague = stats.get("league").get("id")
+                idLeagueEx = stats.get("league").get("id")
+                idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
                 seasonLeague = stats.get("league").get("season")
                 idTeam = stats.get("team").get("id")
                 gamesRoot = stats.get("games")
@@ -295,7 +299,7 @@ class Parsers:
                 dribblesSuccess = dribblesRoot.get("success")
                 dribblesPast = dribblesRoot.get("past")
 
-                foulsDrawn = foulsRoot.get("drawm")
+                foulsDrawn = foulsRoot.get("drawn")
                 foulsCommitted = foulsRoot.get("committed")
 
                 cardsYellow = cardsRoot.get("yellow")
@@ -303,7 +307,7 @@ class Parsers:
                 cardsRed = cardsRoot.get("red")
 
                 penaltyWon = penaltyRoot.get("won")
-                penaltyCommitted = penaltyRoot.get("committed")
+                penaltyCommitted = penaltyRoot.get("commited")
                 penaltyScored = penaltyRoot.get("scored")
                 penaltyMissed = penaltyRoot.get("missed")
                 penaltySaved = penaltyRoot.get("saved")
@@ -321,7 +325,7 @@ class Parsers:
                     "blocks": tacklesBlock, "interceptions": tacklesInterceptions,
                     "duels_total": duelsTotal, "duels_win": duelsWon, "dribbles_attempted": dribblesAttempts,
                     "dribbles_success": dribblesSuccess, "dribbles_past": dribblesPast,
-                    "fouls_draw": foulsDrawn, "fouls_committed": foulsCommitted, "cards_yellow": cardsYellow,
+                    "fouls_drawn": foulsDrawn, "fouls_committed": foulsCommitted, "cards_yellow": cardsYellow,
                     "cards_yellowred": cardsYellowRed, "cards_red": cardsRed,
                     "penalties_won": penaltyWon, "penalties_committed": penaltyCommitted,
                     "penalties_scored": penaltyScored,
@@ -342,7 +346,8 @@ class Parsers:
             return listOfStats
 
     def team_league_fixtures_stats_parser(self, team_league_stats_infos: dict[str:any]) -> dict[str:any]:
-        idLeague = team_league_stats_infos.get("league").get("id")
+        idLeagueEx = team_league_stats_infos.get("league").get("id")
+        idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
         idTeam = team_league_stats_infos.get("team").get("id")
         fixturesRoot = team_league_stats_infos.get("fixtures")
         cleanSheetRoot = team_league_stats_infos.get("clean_sheet")
@@ -398,7 +403,8 @@ class Parsers:
 
         typesStats = ["for", "against"]
         for typeStat in typesStats:
-            idLeague = team_league_goals_stats_infos.get("league").get("id")
+            idLeagueEx = team_league_goals_stats_infos.get("league").get("id")
+            idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
             idTeam = team_league_goals_stats_infos.get("team").get("id")
             typeRoot = goalsRoot.get(typeStat)
             minuteRoot = typeRoot.get("minute")
@@ -434,7 +440,8 @@ class Parsers:
     def team_league_cards_stats_parser(self, team_league_cards_stats_infos: dict[str:any]) -> dict[str:str]:
         cardTypes = ["red", "yellow"]
 
-        idLeague = team_league_cards_stats_infos.get("league").get("id")
+        idLeagueEx = team_league_cards_stats_infos.get("league").get("id")
+        idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
         idTeam = team_league_cards_stats_infos.get("team").get("id")
         cardsRoot = team_league_cards_stats_infos.get("cards")
         listToReturn: list[dict[str:any]] = []
