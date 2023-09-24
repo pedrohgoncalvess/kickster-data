@@ -2,7 +2,7 @@ from models import (
     stadiums_model, teams_model, leagues_model,
     players_model, fixtures_model, fixtures_stats_model,
     players_stats_model, teams_squad_model, fixtures_events_model,
-    teams_fixtures_stats_model, teams_cards_stats_model, teams_goals_stats_model
+    teams_fixtures_stats_model, teams_cards_stats_model, teams_goals_stats_model, fixtures_lineups_model
 )
 
 class Generators:
@@ -195,7 +195,7 @@ class Generators:
         dribblesAttempted = player_stat_infos.get("dribbles_attempted")
         dribblesSuccess = player_stat_infos.get("dribbles_success")
         dribblesPast = player_stat_infos.get("dribbles_past")
-        foulsDraw = player_stat_infos.get("fouls_draw")
+        foulsDrawn = player_stat_infos.get("fouls_drawn")
         foulsCommitted = player_stat_infos.get("fouls_committed")
         cardsYellow = player_stat_infos.get("cards_yellow")
         cardsYellowRed = player_stat_infos.get("cards_yellowred")
@@ -214,7 +214,7 @@ class Generators:
             total_pass=passesTotal, key_pass=passesKey, accuracy_pass=passesAccuracy, tackles=tacklesTotal,
             blocks=blocks, interceptions=interceptions, total_duels=duelsTotal, win_duels=duelsWin,
             attempted_dribbles=dribblesAttempted, success_dribbles=dribblesSuccess, past_dribbles=dribblesPast,
-            drawn_fouls=foulsDraw, committed_fouls=foulsCommitted, yellow_cards=cardsYellow, yellow_red_cards=cardsYellowRed,
+            drawn_fouls=foulsDrawn, committed_fouls=foulsCommitted, yellow_cards=cardsYellow, yellow_red_cards=cardsYellowRed,
             red_cards=cardsRed, won_penalties=penaltiesWon, committed_penalties=penaltiesCommitted, scored_penalties=penaltiesScored,
             missed_penalties=penaltiesMissed, saved_penalties=penaltiesSaved
         )
@@ -307,17 +307,10 @@ class Generators:
         positionPlayer = fixture_lineup_infos.get("position")
         gridPlayer = fixture_lineup_infos.get("grid")
 
-        queryInsert = f"""
-        insert into ftb.fixtures_lineups (id_fixture, id_team, id_player, "type", "position", grid)
-        values (
-        (select id from ftb.fixtures where id_fixture = {idFixture}),
-        (select id from ftb.teams where id_team = {idTeam}),
-        (select id from ftb.players where id_player = {idPlayer}),
-        '{typeLineUp}',
-        '{positionPlayer}',
-        '{gridPlayer}'
-        ) 
-        """
+        newFixtureLineup = fixtures_lineups_model.FixturesLineups(
+            id_team=idTeam, id_fixture=idFixture, id_player=idPlayer,
+            type=typeLineUp, position=positionPlayer, grid=gridPlayer
+        )
 
-        return queryInsert
+        return newFixtureLineup
 
