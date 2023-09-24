@@ -7,7 +7,7 @@ def main():
     manager = Managers()
     dataFromDb = Operations()
 
-    listIdFixtures = dataFromDb.get_finished_fixtures_id()
+    listIdFixtures = dataFromDb.get_not_collectd_fixtures_stats()
 
     for idFixture in listIdFixtures:
         fixtureStaticResponseRaw = req.fixture_stats(idFixture)

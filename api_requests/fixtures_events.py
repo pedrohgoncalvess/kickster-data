@@ -8,7 +8,7 @@ def main():
     manager = Managers()
     dataFromDb = Operations()
 
-    listFixtures = dataFromDb.get_finished_fixtures_id()
+    listFixtures = dataFromDb.get_not_collectd_fixtures_events()
 
     for fixtureId in listFixtures:
         jsonEvents = req.fixture_events(fixtureId)

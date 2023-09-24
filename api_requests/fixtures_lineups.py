@@ -8,7 +8,7 @@ def main():
     manager = Managers()
     dataFromDb = Operations()
 
-    listIdsFixtures = dataFromDb.get_all_fixtures_id()
+    listIdsFixtures = dataFromDb.get_not_collectd_fixtures_lineups()
     for idFixture in listIdsFixtures:
         teamsLineUpsResponseRaw = req.fixture_lineups(id_fixture=idFixture)
         manager.fixture_lineups_management(fixture_lineups_values=teamsLineUpsResponseRaw, id_fixture=idFixture)
