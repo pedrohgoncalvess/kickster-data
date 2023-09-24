@@ -13,6 +13,7 @@ class Managers:
         self.__insert__ = db_connection.insert_object
         self.__set_data_stats_collected__ = self.data_from_db.set_collected_fixtures_stats
         self.__set_data_events_collected__ = self.data_from_db.set_collected_fixtures_events
+        self.__set_data_lineups_collected__ = self.data_from_db.set_collected_fixtures_lineups
         self.execute_update_query = "pass"
 
     def stadium_management(self, stadium_infos: dict[str:str]) -> NoReturn:
@@ -93,17 +94,17 @@ class Managers:
             newSquadMember = self.generator.generator_team_player_squad(playerInfo)
             self.__insert__(newSquadMember)
 
-
     def player_stats_management(self, player_stats_values: list[dict[str:any]]) -> NoReturn:
-        leaguesInDb = self.data_from_db.get_all_leagues_id()
+        leaguesInDb = self.data_from_db.get_all_leagues_intern_id()
         playerStat = self.parser.player_stats_parser(player_stats_values)
         playersLeagueInserted = []
         for stat in playerStat:
             newPlayerStat = self.generator.generator_player_stat(stat)
             compostKey = f"{newPlayerStat.id_player}-{newPlayerStat.id_league}"
-            if newPlayerStat.id_league in leaguesInDb and compostKey not in playersLeagueInserted:
-                self.__insert__(newPlayerStat)
-                playersLeagueInserted.append(compostKey)
+            if newPlayerStat.id_league in leaguesInDb:
+                if compostKey not in playersLeagueInserted:
+                    self.__insert__(newPlayerStat)
+                    playersLeagueInserted.append(compostKey)
 
     def team_league_fixtures_stats_management(self, team_league_stat_values: dict[str:any]) -> NoReturn:
         teamLeagueStat = self.parser.team_league_fixtures_stats_parser(team_league_stat_values)
@@ -127,5 +128,7 @@ class Managers:
         for teamLineUp in fixture_lineups_values:
             fixtureTeamLineUp = self.parser.fixture_lineup_parser(teamLineUp, id_fixture)
             for playerInLineUp in fixtureTeamLineUp:
-                queryInsert = self.generator.generator_fixture_lineup(playerInLineUp)
-                self.execute_insert_query(queryInsert)
+                newPlayerInFixtureLineup = self.generator.generator_fixture_lineup(playerInLineUp)
+                self.__insert__(newPlayerInFixtureLineup)
+        self.__set_data_lineups_collected__(id_fixture=id_fixture)
+
