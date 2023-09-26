@@ -1,4 +1,4 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from typing import Optional, List
@@ -22,6 +22,8 @@ class Fixtures(Base):
 
     start_at: Mapped[types.DateTime] = mapped_column(String(20), nullable=False)
     result: Mapped[str] = mapped_column(String(11), nullable=False)
+    goals_home: Mapped[int] = mapped_column(Integer, nullable=False)
+    goals_away: Mapped[int] = mapped_column(Integer, nullable=False)
     round: Mapped[str] = mapped_column(String(30), nullable=False)
     referee: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
