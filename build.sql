@@ -154,6 +154,8 @@ create table if not exists "ftd".fixtures
     id_team_away integer not null,
     start_at timestamp not null,
     result varchar(11) not null,
+    goals_home integer not null,
+    goals_away integer not null,
     round varchar(30) not null,
     referee varchar(50),
     status varchar(20) not null,
