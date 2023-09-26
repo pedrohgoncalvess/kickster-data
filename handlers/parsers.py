@@ -121,6 +121,7 @@ class Parsers:
         fixtureInfos: dict[str:any] = fixture_infos.get("fixture")
         leagueInfo = fixture_infos.get("league")
         teamsInfo = fixture_infos.get("teams")
+        goalsInfo = fixture_infos.get("goals")
 
         idFixture: str = fixtureInfos.get("id")
         refereeFixture: str = fixtureInfos.get("referee").split(",")[0] if fixtureInfos.get("referee") is not None else None
@@ -137,6 +138,8 @@ class Parsers:
         idLeague = self.ids_league.get(f"{idLeagueEx}-{self.actualYear}")
         roundLeague: str = leagueInfo.get("round")
         seasonLeague: int = leagueInfo.get("season")
+        goalsHome = goalsInfo.get("home")
+        goalsAway = goalsInfo.get("away")
 
         statusFixture: str = fixtureInfos.get("status").get("long").lower().replace(" ", "_")
 
@@ -150,17 +153,11 @@ class Parsers:
             winnerTeam = "draw"
 
         dictToReturn = {
-            "id_fixture": idFixture,
-            "date": datetimeFixture,
-            "referee": refereeFixture,
-            "id_stadium": idStadium,
-            "home_team": homeTeam,
-            "away_team": awayTeam,
-            "id_league": idLeague,
-            "round": roundLeague,
-            "season": seasonLeague,
-            "result": winnerTeam,
-            "status": statusFixture
+            "id_fixture": idFixture, "date": datetimeFixture, "referee": refereeFixture,
+            "id_stadium": idStadium, "home_team": homeTeam, "away_team": awayTeam,
+            "id_league": idLeague, "round": roundLeague, "season": seasonLeague,
+            "result": winnerTeam, "status": statusFixture, "goals_home":goalsHome,
+            "goals_away":goalsAway
         }
 
         return dictToReturn

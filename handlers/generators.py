@@ -89,14 +89,15 @@ class Generators:
         idAwayTeamFixture = fixture_values.get("away_team")
         idLeague = fixture_values.get("id_league")
         roundFixture = fixture_values.get("round")
-        seasonFixture = fixture_values.get("season")
         resultFixture = fixture_values.get("result")
         statusFixture = fixture_values.get("status")
+        goalsHome = fixture_values.get("goals_home")
+        goalsAway = fixture_values.get("goals_away")
 
         newFixture = fixtures_model.Fixtures(
             id=idFixture, id_stadium=idStadiumFixture, id_team_home=idHomeTeamFixture, id_team_away=idAwayTeamFixture,
             id_league=idLeague, start_at=dateFixture, result=resultFixture, referee=refereeFixture, round=roundFixture,
-            status=statusFixture
+            status=statusFixture, goals_home=goalsHome, goals_away=goalsAway
         )
 
         return newFixture
