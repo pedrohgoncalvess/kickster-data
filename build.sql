@@ -412,3 +412,12 @@ BEFORE INSERT OR UPDATE ON ftd.teams_cards_stats
 FOR EACH ROW
 EXECUTE FUNCTION updated_at_with_current_timestamp();
 
+
+create table if not exists ftd.cast_value(
+	id serial,
+	id_team integer not null unique,
+	cast_value numeric not null,
+	cast_size integer not null,
+	constraint cast_value_pk primary key (id),
+    constraint cast_value_team_fk foreign key (id_team) references "ftd".teams (id)
+);
